@@ -82,10 +82,14 @@ export async function POST(req: NextRequest) {
       message: completion.choices[0].message.content
     });
     
-  } catch (error: any) {
+  } catch (error) {
     console.error('Chat API Error:', error);
+    
+    // Type guard to check if error is an Error object
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    
     return NextResponse.json(
-      { message: 'Error processing chat request', error: error.message },
+      { message: 'Error processing chat request', error: errorMessage },
       { status: 500 }
     );
   }
