@@ -1,14 +1,16 @@
 "use client"
 
-import React, { useState, useRef, ChangeEvent } from 'react';
+import React, { useState, useRef, ChangeEvent, useEffect } from 'react';
 import { Search, Plus, X, SendHorizontal } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
 import { PDFDocument } from 'pdf-lib';
 import { cn } from "@/lib/utils";
 import { FiCopy, FiDownload } from 'react-icons/fi';
+import Link from 'next/link';
 
 interface PDFFile {
   file: File;
@@ -23,13 +25,98 @@ interface AnalyzedPage {
   description: string;
 }
 
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 interface ChatPanelProps {
   isOpen: boolean;
   onClose: () => void;
   selectedPdf: string | null;
+  pdfContents?: { pageNumber: number; content: string; }[];
 }
 
-const ChatPanel = ({ isOpen, onClose, selectedPdf }: ChatPanelProps) => {
+const ChatPanel = ({ isOpen, onClose, selectedPdf, pdfContents }: ChatPanelProps) => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Reset chat when PDF changes
+  useEffect(() => {
+    setMessages([]);
+    setInputValue('');
+    setIsLoading(false);
+  }, [selectedPdf]);
+
+  const handleSendMessage = async () => {
+    if (!inputValue.trim()) return;
+    
+    const userMessage = {
+      role: 'user' as const,
+      content: inputValue
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setInputValue('');
+    setIsLoading(true);
+    
+    try {
+      console.log('Sending request to /api/chat');
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: messages.concat(userMessage).map(msg => ({
+            isUser: msg.role === 'user',
+            content: msg.content
+          })),
+          pdfContext: pdfContents,
+          selectedPdf
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('API Error:', errorData);
+        throw new Error(errorData.message || 'Failed to get response');
+      }
+      
+      const data = await response.json();
+      console.log('API Response:', data);
+      
+      if (!data.message) {
+        throw new Error('Invalid response format');
+      }
+      
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: data.message
+      }]);
+    } catch (error) {
+      console.error('Chat error:', error);
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: 'Sorry, I encountered an error while processing your request.'
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const handleClearChat = () => {
+    setMessages([]);
+  };
+
   return (
     <div 
       className={cn(
@@ -39,43 +126,82 @@ const ChatPanel = ({ isOpen, onClose, selectedPdf }: ChatPanelProps) => {
     >
       {/* Header */}
       <div className="flex justify-between items-center p-6 border-b">
-        <div className="text-3xl font-semibold">What do you need?</div>
-        <Button 
-          variant="ghost" 
-          size="icon"
-          onClick={onClose}
-          className="text-gray-600"
-        >
-          <X className="h-5 w-5" />
-        </Button>
+        <div>
+          <div className="text-3xl font-semibold">Chat about your PDF</div>
+          {selectedPdf && (
+            <div className="text-sm text-gray-500 mt-1">
+              Currently analyzing: {selectedPdf}
+            </div>
+          )}
+        </div>
+        <div className="flex space-x-2">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={handleClearChat}
+            className="text-gray-600"
+          >
+            Clear Chat
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={onClose}
+            className="text-gray-600"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
       </div>
 
-      {/* Content */}
-      <div className="p-6">
-        <div className="text-gray-600 mb-12">
-          We can read any page and have info about your pdf
-        </div>
-
-        {/* PDF Selection Info */}
-        <div className="mb-8">
-          <div className="text-sm text-gray-500">PDF Selected:</div>
-          <div className="text-gray-900 font-medium">{selectedPdf}</div>
-        </div>
-
-        {/* Chat Input */}
-        <div className="fixed bottom-6 left-6 right-6">
-          <div className="relative">
-            <Input
-              placeholder="Which page has most info about porsche"
-              className="pl-4 pr-12 h-12 rounded-full border-[#D7524A] focus:border-[#E2673F] focus:ring-[#E2673F]"
-            />
-            <Button
-              size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black h-8 w-8"
+      {/* Messages Area */}
+      <ScrollArea className="flex-1 p-6 h-[calc(100vh-180px)]">
+        <div className="space-y-4">
+          {messages.length === 0 && selectedPdf && (
+            <div className="text-gray-500 text-center p-4">
+              Ask a question about your PDF
+            </div>
+          )}
+          {messages.map((message, index) => (
+            <div
+              key={index}
+              className={cn(
+                "p-4 rounded-lg max-w-[80%]",
+                message.role === 'user' 
+                  ? "bg-black text-white ml-auto" 
+                  : "bg-gray-100 text-gray-900"
+              )}
             >
-              <SendHorizontal className="h-4 w-4 text-white" />
-            </Button>
-          </div>
+              <ReactMarkdown>{message.content}</ReactMarkdown>
+            </div>
+          ))}
+          {isLoading && (
+            <div className="bg-gray-100 text-gray-900 p-4 rounded-lg max-w-[80%] animate-pulse">
+              Thinking...
+            </div>
+          )}
+        </div>
+      </ScrollArea>
+
+      {/* Chat Input */}
+      <div className="p-2 border-t">
+        <div className="relative">
+          <Input
+            placeholder="Ask about your PDF..."
+            className="pl-4 pr-12 h-12 rounded-full border-[#D7524A] focus:border-[#E2673F] focus:ring-[#E2673F]"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyPress}
+            disabled={isLoading || !selectedPdf}
+          />
+          <Button
+            size="icon"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black h-8 w-8 disabled:opacity-50"
+            onClick={handleSendMessage}
+            disabled={!inputValue.trim() || isLoading || !selectedPdf}
+          >
+            <SendHorizontal className="h-4 w-4 text-white" />
+          </Button>
         </div>
       </div>
     </div>
@@ -192,24 +318,27 @@ const PDFAnalyzerDashboard = () => {
       >
         {/* Sidebar */}
         <div className="w-48 bg-white border-r border-gray-200 flex flex-col">
-          <div className="p-4">
-            <div className="flex items-center space-x-2 mb-6">
-              <img src="/images/logo.svg" alt="Logo" className="h-6 w-6" />
-              <span className="font-semibold">PDF2LLM.AI</span>
-            </div>
-            <div className="space-y-2">
-              <div className={`${gradientButtonStyle} rounded px-3 py-2`}>
-                Dashboard
-              </div>
-              <div className="text-gray-600 px-3 py-2">
-                API
-              </div>
-              <div className="text-gray-600 px-3 py-2">
-                API key
-              </div>
-            </div>
+        <div className="p-4">
+          <div className="flex items-center space-x-2 mb-6">
+            <img src="/images/logo.svg" alt="Logo" className="h-6 w-6" />
+            <span className="font-semibold">PDF2LLM.AI</span>
+          </div>
+          <div className="space-y-2">
+            <Link href="/dashboard" className={`${gradientButtonStyle} rounded px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95`}>
+              Dashboard
+            </Link>
+            <Link href="/api" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
+              API
+            </Link>
+            <Link href="/api-key" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
+              API Key
+            </Link>
+            <Link href="/settings" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
+              Settings
+            </Link>
           </div>
         </div>
+      </div>
 
         {/* Main content */}
         <div className="flex-1 flex max-h-screen overflow-hidden">
@@ -233,7 +362,7 @@ const PDFAnalyzerDashboard = () => {
                 </Button>
                 <Button 
                   size="icon" 
-                  className="bg-black text-white rounded-full h-8 w-8"
+                  className="bg-black text-white rounded-full h-8 w-8 hover:scale-110"
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <Plus className="h-5 w-5" />
@@ -241,7 +370,7 @@ const PDFAnalyzerDashboard = () => {
               </div>
             </div>
             
-<div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-4 gap-3">
               {filteredPdfFiles.length > 0 ? filteredPdfFiles.map((pdf) => (
                 <div 
                   key={pdf.id}
@@ -265,7 +394,7 @@ const PDFAnalyzerDashboard = () => {
                 </div>
               )) : (
                 <div className="col-span-3 text-center text-gray-500 mt-10">
-                  {searchQuery ? "No PDFs match your search" : "No PDFs uploaded yet"}
+                  {searchQuery ? "No PDFs match your search" : "Click on + to add your first pdf"}
                 </div>
               )}
             </div>
@@ -377,6 +506,10 @@ const PDFAnalyzerDashboard = () => {
         isOpen={isChatOpen}
         onClose={() => setIsChatOpen(false)}
         selectedPdf={selectedFile?.name ?? null}
+        pdfContents={selectedFile?.pages.map(page => ({
+          pageNumber: page.page,
+          content: page.description
+        }))}
       />
 
       {/* Hidden file input */}
