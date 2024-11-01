@@ -320,7 +320,7 @@ const PDFAnalyzerDashboard = () => {
         <div className="w-48 bg-white border-r border-gray-200 flex flex-col">
         <div className="p-4">
           <div className="flex items-center space-x-2 mb-6">
-            <img src="/images/logo.svg" alt="Logo" className="h-6 w-6" />
+            <img src="/images/logo.svg" alt="Logo" className="h-6.1 w-6" />
             <span className="font-semibold">PDF2LLM.AI</span>
           </div>
           <div className="space-y-2">
