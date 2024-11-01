@@ -4,9 +4,11 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Check } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 const Page = () => {
   const [isTop, setIsTop] = useState(true);
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -19,19 +21,22 @@ const Page = () => {
     };
   }, []);
 
+  const isSignInPage = pathname === '/sign-in';
+  const isSignUpPage = pathname === '/sign-up';
+
   return (
     <div className="relative">
       {/* Header */}
       <header className={`fixed top-0 left-0 right-0 flex justify-between items-center p-4 z-50 transition-colors duration-300 ${isTop ? 'bg-transparent text-white' : 'bg-white text-black backdrop-filter backdrop-blur-md'}`}>
         {/* Logo */}
         <div className="flex items-center space-x-2">
-          <Image src="/images/logo.svg" alt="Logo" width={23} height={23} />
+          <Image src="/images/logo.svg" alt="Logo" width={28} height={28} />
           <span className="font-semibold text-base">PDF2LLM.AI</span>
         </div>
 
         {/* Sign Up / Sign In Buttons */}
         <div className="flex space-x-3">
-          <Link href="/sign-in" className="text-sm font-semibold hover:text-gray-300 transition-colors">
+          <Link href="/sign-up" className="text-sm font-semibold hover:text-gray-300 transition-colors">
             Sign Up
           </Link>
           <Link href="/sign-in" className="text-sm font-semibold hover:text-gray-300 transition-colors">
@@ -64,6 +69,10 @@ const Page = () => {
             </Link>
         </div>
       </div>
+
+      {/* Display Sign In/Sign Up Message */}
+      {isSignInPage && <p className="text-center text-white">You are on the Sign In page.</p>}
+      {isSignUpPage && <p className="text-center text-white">You are on the Sign Up page.</p>}
 
       {/* Features Section */}
       <div className="min-h-screen bg-white flex flex-col items-center justify-center p-8">
@@ -134,7 +143,7 @@ const Page = () => {
                 <div className="relative h-2 bg-gray-800 rounded-full overflow-hidden">
                   <div className="absolute top-0 left-0 h-full w-full bg-gradient-to-r from-[#D7524A] to-[#D7524A] rounded-full transform transition-transform duration-1000 animate-progress"></div>
                 </div>
-                <p className="text-white text-right">100%</p>
+                <p className="text-white text-right">99%</p>
               </div>
             </div>
 
