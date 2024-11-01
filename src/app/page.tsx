@@ -22,7 +22,7 @@ const PDFToMarkdownPage = () => {
       </h1>
       
       <p className="text-gray-300 mt-2 text-lg">
-        Experience the world's most accurate PDF to Markdown<br />
+        Experience the worlds most accurate PDF to Markdown<br />
         conversion, powered by ChatGPT.
       </p>
     </div>
