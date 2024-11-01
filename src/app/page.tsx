@@ -1,5 +1,8 @@
+"use client"
+
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Check } from 'lucide-react';
 
 const Page = () => {
@@ -15,12 +18,12 @@ const Page = () => {
 
         {/* Sign Up / Sign In Buttons */}
         <div className="flex space-x-3">
-          <button className="text-sm font-semibold hover:text-gray-300 transition-colors">
+          <Link href="/sign-in" className="text-sm font-semibold hover:text-gray-300 transition-colors">
             Sign Up
-          </button>
-          <button className="text-sm font-semibold hover:text-gray-300 transition-colors">
+          </Link>
+          <Link href="/sign-in" className="text-sm font-semibold hover:text-gray-300 transition-colors">
             Sign In
-          </button>
+          </Link>
         </div>
       </header>
 
@@ -43,11 +46,11 @@ const Page = () => {
             Experience the world&apos;s most accurate PDF to Markdown<br />
             conversion, powered by ChatGPT.
           </p>
-          <button className="px-8 py-3 text-white bg-transparent border-2 border-[#D7524A]/70 rounded-lg 
+          <Link href="/sign-in" className="px-8 py-3 text-white bg-transparent border-2 border-[#D7524A]/70 rounded-lg 
             hover:bg-[#D7524A]/10 transition-all duration-300 relative group">
             <div className="absolute inset-0 rounded-lg bg-[#D7524A]/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <span className="relative z-10">Get Started</span>
-          </button>
+          </Link>
         </div>
       </div>
 
