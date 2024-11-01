@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { signIn } from '@/lib/auth'
+import { signIn } from '@/lib/auth.js'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -22,13 +22,13 @@ export default function SignInPage() {
     setError('')
 
     try {
-      await signIn(email, password)
-      router.push('/home')
-    } catch (error: any) {
-      setError(error.message)
-    } finally {
-      setIsLoading(false)
-    }
+        await signIn(email, password)
+        router.push('/home')
+      } catch (error: unknown) {
+        setError(error instanceof Error ? error.message : 'An unexpected error occurred')
+      } finally {
+        setIsLoading(false)
+      }
   }
 
   return (
