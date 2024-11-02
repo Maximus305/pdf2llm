@@ -239,24 +239,7 @@ const PDFAnalyzerDashboard = () => {
     return () => unsubscribe();
   }, []);
 
-  const handleSignIn = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-    } catch (error) {
-      console.error('Sign in error:', error);
-      setErrorMessage('Failed to sign in');
-    }
-  };
-
-  const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error('Sign out error:', error);
-      setErrorMessage('Failed to sign out');
-    }
-  };
+ 
 
   const loadUserPDFs = async (userId: string) => {
     try {
