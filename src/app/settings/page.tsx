@@ -1,20 +1,63 @@
 "use client"
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from 'next/link';
+import { db } from '@/lib/firebase';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
-const SAMPLE_DATA = {
-  firstName: "John",
-  lastName: "Doe",
-  email: "john.doe@gmail.com"
+// Define a type for the user data
+type UserData = {
+  firstName: string;
+  lastName: string;
+  email: string;
 };
 
 const gradientButtonStyle = "bg-gradient-to-r from-[#D7524A] to-[#E2673F] text-white hover:opacity-90";
 
 export default function SettingsPage() {
+  const [userData, setUserData] = useState<UserData>({
+    firstName: '',
+    lastName: '',
+    email: ''
+  });
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userDoc = await getDoc(doc(db, 'users', 'USER_ID')); // Replace 'USER_ID' with the actual user ID
+        if (userDoc.exists()) {
+          setUserData(userDoc.data() as UserData); // Use type assertion here
+        } else {
+          console.log('No such document!');
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setUserData((prevData) => ({
+      ...prevData,
+      [id]: value
+    }));
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      await updateDoc(doc(db, 'users', 'USER_ID'), userData); // Replace 'USER_ID' with the actual user ID
+      console.log('User data updated successfully');
+    } catch (error) {
+      console.error('Error updating user data:', error);
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-white">
       {/* Sidebar */}
@@ -58,7 +101,7 @@ export default function SettingsPage() {
         <div className="max-w-2xl mx-auto p-6 space-y-8">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-semibold">Account Settings</h1>
-            <Button variant="default" className="bg-black text-white hover:bg-gray-800">
+            <Button variant="default" className="bg-black text-white hover:bg-gray-800" onClick={handleSaveChanges}>
               Save Changes
             </Button>
           </div>
@@ -72,7 +115,8 @@ export default function SettingsPage() {
                 </label>
                 <Input 
                   id="firstName" 
-                  defaultValue={SAMPLE_DATA.firstName}
+                  value={userData.firstName}
+                  onChange={handleInputChange}
                   placeholder="Enter your first name"
                 />
               </div>
@@ -83,7 +127,8 @@ export default function SettingsPage() {
                 </label>
                 <Input 
                   id="lastName" 
-                  defaultValue={SAMPLE_DATA.lastName}
+                  value={userData.lastName}
+                  onChange={handleInputChange}
                   placeholder="Enter your last name"
                 />
               </div>
@@ -99,7 +144,8 @@ export default function SettingsPage() {
                   </label>
                   <Input 
                     id="email" 
-                    defaultValue={SAMPLE_DATA.email}
+                    value={userData.email}
+                    onChange={handleInputChange}
                     placeholder="Enter your email"
                   />
                 </div>
