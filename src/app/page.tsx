@@ -1,15 +1,33 @@
 "use client"
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Check } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 const Page = () => {
+  const [isTop, setIsTop] = useState(true);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsTop(window.scrollY === 0);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  const isSignInPage = pathname === '/sign-in';
+  const isSignUpPage = pathname === '/sign-up';
+
   return (
     <div className="relative">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 flex justify-between items-center p-6 text-white backdrop-blur-sm bg-black/10 z-50">
+      <header className={`fixed top-0 left-0 right-0 flex justify-between items-center p-4 z-50 transition-colors duration-300 ${isTop ? 'bg-transparent text-white' : 'bg-white text-black backdrop-filter backdrop-blur-md'}`}>
         {/* Logo */}
         <div className="flex items-center space-x-2">
           <Image src="/images/logo.svg" alt="Logo" width={28} height={28} />
@@ -18,7 +36,7 @@ const Page = () => {
 
         {/* Sign Up / Sign In Buttons */}
         <div className="flex space-x-3">
-          <Link href="/sign-in" className="text-sm font-semibold hover:text-gray-300 transition-colors">
+          <Link href="/sign-up" className="text-sm font-semibold hover:text-gray-300 transition-colors">
             Sign Up
           </Link>
           <Link href="/sign-in" className="text-sm font-semibold hover:text-gray-300 transition-colors">
@@ -33,32 +51,38 @@ const Page = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-gray-900 to-black" />
         
         {/* Glow effects */}
-        <div className="absolute top-1/4 -left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
-        <div className="absolute top-1/3 -right-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl" />
-        <div className="absolute -top-1/4 left-1/3 w-96 h-96 bg-red-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-20 left-10 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl" />
+        <div className="absolute top-1/3 right-10 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-80 h-80 bg-red-500/10 rounded-full blur-3xl" />
 
         {/* Main Content */}
         <div className="text-center mb-32 relative z-10">
-          <h1 className="text-white text-5xl font-semibold mb-4 drop-shadow-2xl">
-            Transform PDFs into Precise Markdown.
-          </h1>
-          <p className="text-gray-300 text-lg mb-8">
-            Experience the world&apos;s most accurate PDF to Markdown<br />
-            conversion, powered by ChatGPT.
-          </p>
-          <Link href="/sign-in" className="px-8 py-3 text-white bg-transparent border-2 border-[#D7524A]/70 rounded-lg 
-            hover:bg-[#D7524A]/10 transition-all duration-300 relative group">
-            <div className="absolute inset-0 rounded-lg bg-[#D7524A]/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <span className="relative z-10">Get Started</span>
-          </Link>
+            <h1 className="text-white text-5xl font-semibold mb-4 drop-shadow-2xl">
+                Transform PDFs into Precise Markdown.
+            </h1>
+            <p className="text-gray-300 text-lg mb-8">
+                Experience the world&apos;s most accurate PDF to Markdown<br />
+                conversion, powered by ChatGPT.
+            </p>
+            <Link href="/sign-in" className="px-8 py-3 text-white bg-gradient-to-r from-[#D7524A] to-[#FF8B64] rounded-lg transition-all duration-300 relative group hover:shadow-orange">
+                <span className="relative z-10">Get Started</span>
+            </Link>
         </div>
       </div>
+
+      {/* Display Sign In/Sign Up Message */}
+      {isSignInPage && <p className="text-center text-white">You are on the Sign In page.</p>}
+      {isSignUpPage && <p className="text-center text-white">You are on the Sign Up page.</p>}
 
       {/* Features Section */}
       <div className="min-h-screen bg-white flex flex-col items-center justify-center p-8">
         <div className="max-w-6xl w-full">
           <h2 className="text-5xl font-medium text-center mb-20">
+<<<<<<< HEAD
             We convert pdfs! <span className="bg-[#D7524A]/20 px-2 rounded">beyond</span><br />
+=======
+            We convert pdfs <span className="bg-[#FF8B64] px-2">beyond</span><br />
+>>>>>>> origin/main
             text with <span className="font-bold">AI</span>.
           </h2>
 
@@ -149,6 +173,15 @@ const styles = `
 
 .animate-progress {
   animation: progress 2s ease-in-out infinite;
+}
+
+@keyframes convert {
+  0%, 100% { opacity: 0; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+.convert-animation {
+  animation: convert 3s ease-in-out infinite;
 }
 `;
 
