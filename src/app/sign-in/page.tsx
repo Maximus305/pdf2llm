@@ -41,7 +41,7 @@ export default function AuthPage() {
       <Card className="w-[450px] border rounded-lg">
         <CardContent className="p-8">
           <h1 className="text-2xl font-normal text-center mb-8">
-            {isSignUp ? "What up my nigga!" : "Welcome back!"}
+            {isSignUp ? "Welcome!" : "Welcome back!"}
           </h1>
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
