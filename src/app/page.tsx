@@ -58,7 +58,7 @@ const Page = () => {
       <div className="min-h-screen bg-white flex flex-col items-center justify-center p-8">
         <div className="max-w-6xl w-full">
           <h2 className="text-5xl font-medium text-center mb-20">
-            We convert pdfs <span className="bg-[#D7524A]/20 px-2 rounded">beyond</span><br />
+            We convert pdfs! <span className="bg-[#D7524A]/20 px-2 rounded">beyond</span><br />
             text with <span className="font-bold">AI</span>.
           </h2>
 
