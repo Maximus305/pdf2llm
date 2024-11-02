@@ -32,7 +32,6 @@ import {
   query,
   where,
   deleteDoc,
-  doc
 } from 'firebase/firestore';
 
 interface PDFFile {
@@ -297,7 +296,7 @@ const PDFAnalyzerDashboard = () => {
       const storagePath = `pdfs/${user.uid}/${pdfFile.id}/${pdfFile.name}`;
       const storageRef = ref(storage, storagePath);
       await uploadBytes(storageRef, pdfFile.file);
-      const downloadURL = await getDownloadURL(storageRef);
+   
       
       const pdfData: FirestorePDF = {
         id: pdfFile.id,
