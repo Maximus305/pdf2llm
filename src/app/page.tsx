@@ -64,7 +64,7 @@ const Page = () => {
                 Experience the world&apos;s most accurate PDF to Markdown<br />
                 conversion, powered by ChatGPT.
             </p>
-            <Link href="/sign-in" className="px-8 py-3 text-white bg-gradient-to-r from-[#D7524A] to-[#FF8B64] rounded-lg transition-all duration-300 relative group">
+            <Link href="/sign-in" className="px-8 py-3 text-white bg-gradient-to-r from-[#D7524A] to-[#FF8B64] rounded-lg transition-all duration-300 relative group hover:shadow-orange">
                 <span className="relative z-10">Get Started</span>
             </Link>
         </div>

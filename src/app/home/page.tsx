@@ -11,6 +11,29 @@ import { PDFDocument } from 'pdf-lib';
 import { cn } from "@/lib/utils";
 import { FiCopy, FiDownload } from 'react-icons/fi';
 import Link from 'next/link';
+import { auth, storage, db } from '@/lib/firebase';
+import { 
+  onAuthStateChanged, 
+  signInWithPopup, 
+  GoogleAuthProvider,
+  signOut,
+  User
+} from 'firebase/auth';
+import { 
+  ref, 
+  uploadBytes, 
+  getDownloadURL,
+  deleteObject
+} from 'firebase/storage';
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  deleteDoc,
+  doc
+} from 'firebase/firestore';
 
 interface PDFFile {
   file: File;
@@ -18,11 +41,22 @@ interface PDFFile {
   name: string;
   isProcessing: boolean;
   pages: AnalyzedPage[];
+  storagePath?: string;
+  userId?: string;
 }
 
 interface AnalyzedPage {
   page: number;
   description: string;
+}
+
+interface FirestorePDF {
+  id: string;
+  name: string;
+  storagePath: string;
+  userId: string;
+  pages: AnalyzedPage[];
+  createdAt: number;
 }
 
 interface Message {
@@ -42,7 +76,6 @@ const ChatPanel = ({ isOpen, onClose, selectedPdf, pdfContents }: ChatPanelProps
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Reset chat when PDF changes
   useEffect(() => {
     setMessages([]);
     setInputValue('');
@@ -62,7 +95,6 @@ const ChatPanel = ({ isOpen, onClose, selectedPdf, pdfContents }: ChatPanelProps
     setIsLoading(true);
     
     try {
-      console.log('Sending request to /api/chat');
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -79,18 +111,10 @@ const ChatPanel = ({ isOpen, onClose, selectedPdf, pdfContents }: ChatPanelProps
       });
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('API Error:', errorData);
-        throw new Error(errorData.message || 'Failed to get response');
+        throw new Error('Failed to get response');
       }
       
       const data = await response.json();
-      console.log('API Response:', data);
-      
-      if (!data.message) {
-        throw new Error('Invalid response format');
-      }
-      
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: data.message
@@ -113,10 +137,6 @@ const ChatPanel = ({ isOpen, onClose, selectedPdf, pdfContents }: ChatPanelProps
     }
   };
 
-  const handleClearChat = () => {
-    setMessages([]);
-  };
-
   return (
     <div 
       className={cn(
@@ -124,37 +144,25 @@ const ChatPanel = ({ isOpen, onClose, selectedPdf, pdfContents }: ChatPanelProps
         isOpen ? "translate-x-0" : "translate-x-full"
       )}
     >
-      {/* Header */}
       <div className="flex justify-between items-center p-6 border-b">
         <div>
-          <div className="text-3xl font-semibold">Chat about your PDF</div>
+          <h3 className="text-xl font-semibold">Chat about your PDF</h3>
           {selectedPdf && (
-            <div className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-gray-500 mt-1">
               Currently analyzing: {selectedPdf}
-            </div>
+            </p>
           )}
         </div>
-        <div className="flex space-x-2">
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={handleClearChat}
-            className="text-gray-600"
-          >
-            Clear Chat
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={onClose}
-            className="text-gray-600"
-          >
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
+        <Button 
+          variant="ghost" 
+          size="icon"
+          onClick={onClose}
+          className="text-gray-600"
+        >
+          <X className="h-5 w-5" />
+        </Button>
       </div>
 
-      {/* Messages Area */}
       <ScrollArea className="flex-1 p-6 h-[calc(100vh-180px)]">
         <div className="space-y-4">
           {messages.length === 0 && selectedPdf && (
@@ -183,12 +191,11 @@ const ChatPanel = ({ isOpen, onClose, selectedPdf, pdfContents }: ChatPanelProps
         </div>
       </ScrollArea>
 
-      {/* Chat Input */}
-      <div className="p-2 border-t">
+      <div className="p-4 border-t">
         <div className="relative">
           <Input
             placeholder="Ask about your PDF..."
-            className="pl-4 pr-12 h-12 rounded-full border-[#D7524A] focus:border-[#E2673F] focus:ring-[#E2673F]"
+            className="pr-12"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyPress}
@@ -196,11 +203,11 @@ const ChatPanel = ({ isOpen, onClose, selectedPdf, pdfContents }: ChatPanelProps
           />
           <Button
             size="icon"
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black h-8 w-8 disabled:opacity-50"
+            className="absolute right-2 top-1/2 -translate-y-1/2"
             onClick={handleSendMessage}
             disabled={!inputValue.trim() || isLoading || !selectedPdf}
           >
-            <SendHorizontal className="h-4 w-4 text-white" />
+            <SendHorizontal className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -214,11 +221,108 @@ const PDFAnalyzerDashboard = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const gradientButtonStyle = "bg-gradient-to-r from-[#D7524A] to-[#E2673F] text-white hover:opacity-90";
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setIsLoading(false);
+      if (user) {
+        loadUserPDFs(user.uid);
+      } else {
+        setPdfFiles([]);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleSignIn = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error('Sign in error:', error);
+      setErrorMessage('Failed to sign in');
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Sign out error:', error);
+      setErrorMessage('Failed to sign out');
+    }
+  };
+
+  const loadUserPDFs = async (userId: string) => {
+    try {
+      const pdfQuery = query(
+        collection(db, 'pdfs'),
+        where('userId', '==', userId)
+      );
+      
+      const querySnapshot = await getDocs(pdfQuery);
+      const pdfs: PDFFile[] = [];
+      
+      for (const doc of querySnapshot.docs) {
+        const data = doc.data() as FirestorePDF;
+        pdfs.push({
+          id: doc.id,
+          name: data.name,
+          pages: data.pages,
+          isProcessing: false,
+          file: new File([], data.name),
+          storagePath: data.storagePath,
+          userId: data.userId
+        });
+      }
+      
+      setPdfFiles(pdfs);
+    } catch (error) {
+      console.error('Error loading PDFs:', error);
+      setErrorMessage('Failed to load your PDFs');
+    }
+  };
+
+  const savePDFToFirebase = async (pdfFile: PDFFile, analyzedPages: AnalyzedPage[]) => {
+    if (!user) return;
+
+    try {
+      const storagePath = `pdfs/${user.uid}/${pdfFile.id}/${pdfFile.name}`;
+      const storageRef = ref(storage, storagePath);
+      await uploadBytes(storageRef, pdfFile.file);
+      const downloadURL = await getDownloadURL(storageRef);
+      
+      const pdfData: FirestorePDF = {
+        id: pdfFile.id,
+        name: pdfFile.name,
+        storagePath,
+        userId: user.uid,
+        pages: analyzedPages,
+        createdAt: Date.now()
+      };
+      
+      await addDoc(collection(db, 'pdfs'), pdfData);
+      
+      return storagePath;
+    } catch (error) {
+      console.error('Error saving PDF:', error);
+      throw new Error('Failed to save PDF');
+    }
+  };
+
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    if (!user) {
+      setErrorMessage('Please sign in to upload PDFs');
+      return;
+    }
+
     const files = event.target.files;
     if (files) {
       const newPDFs = Array.from(files).filter(file => file.type === "application/pdf");
@@ -228,13 +332,13 @@ const PDFAnalyzerDashboard = () => {
           id: Math.random().toString(36).substr(2, 9),
           name: file.name,
           isProcessing: false,
-          pages: []
+          pages: [],
+          userId: user.uid
         }));
 
         setPdfFiles(prev => [...prev, ...formattedPDFs]);
         setErrorMessage(null);
 
-        // Process each PDF automatically after adding
         formattedPDFs.forEach(pdf => handleProcessing(pdf));
       } else {
         setErrorMessage("Please select valid PDF files.");
@@ -271,8 +375,15 @@ const PDFAnalyzerDashboard = () => {
         })
       );
 
+      const storagePath = await savePDFToFirebase(pdfFile, analyzedPages);
+
       setPdfFiles(prev => prev.map(pdf => 
-        pdf.id === pdfFile.id ? { ...pdf, isProcessing: false, pages: analyzedPages } : pdf
+        pdf.id === pdfFile.id ? { 
+          ...pdf, 
+          isProcessing: false, 
+          pages: analyzedPages,
+          storagePath 
+        } : pdf
       ));
 
       setSelectedFileId(pdfFile.id);
@@ -282,6 +393,29 @@ const PDFAnalyzerDashboard = () => {
       setPdfFiles(prev => prev.map(pdf => 
         pdf.id === pdfFile.id ? { ...pdf, isProcessing: false } : pdf
       ));
+    }
+  };
+
+  const handleDeletePDF = async (pdfId: string) => {
+    try {
+      const pdfToDelete = pdfFiles.find(pdf => pdf.id === pdfId);
+      if (!pdfToDelete?.storagePath) return;
+
+      const storageRef = ref(storage, pdfToDelete.storagePath);
+      await deleteObject(storageRef);
+
+      const pdfQuery = query(
+        collection(db, 'pdfs'),
+        where('id', '==', pdfId)
+      );
+      const querySnapshot = await getDocs(pdfQuery);
+      await Promise.all(querySnapshot.docs.map(doc => deleteDoc(doc.ref)));
+
+      setPdfFiles(prev => prev.filter(pdf => pdf.id !== pdfId));
+      if (selectedFileId === pdfId) setSelectedFileId(null);
+    } catch (error) {
+      console.error('Error deleting PDF:', error);
+      setErrorMessage('Failed to delete PDF');
     }
   };
 
@@ -303,48 +437,76 @@ const PDFAnalyzerDashboard = () => {
     document.body.removeChild(element);
   };
 
-  const selectedFile = pdfFiles.find(pdf => pdf.id === selectedFileId);
   const filteredPdfFiles = pdfFiles.filter(pdf => 
     pdf.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const selectedFile = pdfFiles.find(pdf => pdf.id === selectedFileId);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
+
   return (
     <>
-      <div 
-        className={cn(
-          "flex min-h-screen max-h-screen overflow-hidden transition-all duration-300 ease-in-out",
-          isChatOpen ? "mr-[500px]" : ""
-        )}
-      >
+      <div className={cn(
+        "flex min-h-screen max-h-screen overflow-hidden transition-all duration-300 ease-in-out",
+        isChatOpen ? "mr-[500px]" : ""
+      )}>
         {/* Sidebar */}
         <div className="w-48 bg-white border-r border-gray-200 flex flex-col">
-        <div className="p-4">
-          <div className="flex items-center space-x-2 mb-6">
-            <img src="/images/logo.svg" alt="Logo" className="h-6.1 w-6" />
-            <span className="font-semibold">PDF2LLM.AI</span>
-          </div>
-          <div className="space-y-2">
-            <Link href="/dashboard" className={`${gradientButtonStyle} rounded px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95`}>
-              Dashboard
-            </Link>
-            <Link href="/api" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
-              API
-            </Link>
-            <Link href="/api-key" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
-              API Key
-            </Link>
-            <Link href="/settings" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
-              Settings
-            </Link>
+          <div className="p-4">
+            <div className="flex items-center space-x-2 mb-6">
+              <img src="/images/logo.svg" alt="Logo" className="h-6.1 w-6" />
+              <span className="font-semibold">PDF2LLM.AI</span>
+            </div>
+            <div className="space-y-2">
+              {user ? (
+                <>
+                  <div className="text-sm text-gray-600 mb-2">
+                    Signed in as: {user.email}
+                  </div>
+                  <Button
+                    onClick={handleSignOut}
+                    className="w-full"
+                    variant="outline"
+                  >
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  onClick={handleSignIn}
+                  className={gradientButtonStyle}
+                >
+                  Sign In
+                </Button>
+              )}
+              <Link href="/dashboard" className={`${gradientButtonStyle} rounded px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95`}>
+                Dashboard
+              </Link>
+              <Link href="/api" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
+                API
+              </Link>
+              <Link href="/api-key" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
+                API Key
+              </Link>
+              <Link href="/settings" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
+                Settings
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
 
         {/* Main content */}
         <div className="flex-1 flex max-h-screen overflow-hidden">
           {/* PDF List */}
           <div className="w-1/2 p-6 border-r border-gray-200 overflow-y-auto">
-            <h1 className="text-2xl font-semibold mb-6">Your pdfs</h1>
+            <h1 className="text-2xl font-semibold mb-6">Your PDFs</h1>
             <div className="flex items-center justify-between mb-8">
               <div className="relative flex-1 mr-4">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -364,6 +526,7 @@ const PDFAnalyzerDashboard = () => {
                   size="icon" 
                   className="bg-black text-white rounded-full h-8 w-8 hover:scale-110"
                   onClick={() => fileInputRef.current?.click()}
+                  disabled={!user}
                 >
                   <Plus className="h-5 w-5" />
                 </Button>
@@ -374,7 +537,7 @@ const PDFAnalyzerDashboard = () => {
               {filteredPdfFiles.length > 0 ? filteredPdfFiles.map((pdf) => (
                 <div 
                   key={pdf.id}
-                  className="flex flex-col items-center cursor-pointer"
+                  className="flex flex-col items-center cursor-pointer relative"
                   onClick={() => setSelectedFileId(pdf.id)}
                 >
                   <div className="mb-2 relative">
@@ -391,10 +554,27 @@ const PDFAnalyzerDashboard = () => {
                     )}
                   </div>
                   <span className="text-sm text-center">{pdf.name}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute top-0 right-0 opacity-0 hover:opacity-100"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeletePDF(pdf.id);
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
               )) : (
-                <div className="col-span-3 text-center text-gray-500 mt-10">
-                  {searchQuery ? "No PDFs match your search" : "Click on + to add your first pdf"}
+                <div className="col-span-4 text-center text-gray-500 mt-10">
+                  {!user ? (
+                    "Please sign in to view your PDFs"
+                  ) : searchQuery ? (
+                    "No PDFs match your search"
+                  ) : (
+                    "Click on + to add your first pdf"
+                  )}
                 </div>
               )}
             </div>
