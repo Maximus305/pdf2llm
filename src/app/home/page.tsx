@@ -14,9 +14,7 @@ import Link from 'next/link';
 import { auth, storage, db } from '@/lib/firebase';
 import { 
   onAuthStateChanged, 
-  signInWithPopup, 
-  GoogleAuthProvider,
-  signOut,
+  
   User
 } from 'firebase/auth';
 import { 
