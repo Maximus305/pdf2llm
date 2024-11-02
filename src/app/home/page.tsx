@@ -463,27 +463,7 @@ const PDFAnalyzerDashboard = () => {
               <span className="font-semibold">PDF2LLM.AI</span>
             </div>
             <div className="space-y-2">
-              {user ? (
-                <>
-                  <div className="text-sm text-gray-600 mb-2">
-                    Signed in as: {user.email}
-                  </div>
-                  <Button
-                    onClick={handleSignOut}
-                    className="w-full"
-                    variant="outline"
-                  >
-                    Sign Out
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  onClick={handleSignIn}
-                  className={gradientButtonStyle}
-                >
-                  Sign In
-                </Button>
-              )}
+              
               <Link href="/dashboard" className={`${gradientButtonStyle} rounded px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95`}>
                 Dashboard
               </Link>
