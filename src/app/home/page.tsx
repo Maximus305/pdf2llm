@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useState, useRef, ChangeEvent, useEffect } from 'react';
 import { Search, Plus, X, SendHorizontal } from 'lucide-react';
@@ -534,6 +534,17 @@ const PDFAnalyzerDashboard = () => {
                     )}
                   </div>
                   <span className="text-sm text-center truncate w-full mt-1">{pdf.name}</span>
+                  <Button 
+                    size="icon" 
+                    variant="ghost" 
+                    className="absolute top-2 right-2 text-gray-600"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeletePDF(pdf.id);
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
               )) : (
                 <div className="col-span-7 text-center text-gray-500 mt-10">

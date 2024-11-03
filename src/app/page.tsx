@@ -21,8 +21,7 @@ const Page = () => {
     };
   }, []);
 
-  const isSignInPage = pathname === '/sign-in';
-  const isSignUpPage = pathname === '/sign-up';
+
 
   return (
     <div className="relative">

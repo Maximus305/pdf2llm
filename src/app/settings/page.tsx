@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from 'next/link';
 import { auth, db } from '@/lib/firebase'; // Ensure auth is correctly set up in firebaseConfig.js
-import { updateProfile } from "firebase/auth";
+import { updateProfile, User } from "firebase/auth"; // Import User type
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 // Define a type for the user data
@@ -26,7 +26,7 @@ export default function SettingsPage() {
     email: '',
     chatModel: 'gpt-3.5', // Default chat model
   });
-  const [authUser, setAuthUser] = useState<any>(null);
+  const [authUser, setAuthUser] = useState<User | null>(null); // Use User type from Firebase
 
   useEffect(() => {
     // Set up Firebase Auth listener to get current user info
@@ -68,13 +68,15 @@ export default function SettingsPage() {
           displayName: `${userData.firstName} ${userData.lastName}`
         });
         console.log('Auth profile updated successfully');
-      }
 
-      // Save chat model or other additional data to Firestore
-      await updateDoc(doc(db, 'users', authUser.uid), {
-        chatModel: userData.chatModel
-      });
-      console.log('User data updated in Firestore');
+        // Save chat model or other additional data to Firestore
+        await updateDoc(doc(db, 'users', authUser.uid), {
+          chatModel: userData.chatModel
+        });
+        console.log('User data updated in Firestore');
+      } else {
+        console.error('No authenticated user found');
+      }
     } catch (error) {
       console.error('Error updating profile:', error);
     }
