@@ -8,7 +8,7 @@ import { usePathname } from 'next/navigation';
 
 const Page = () => {
   const [isTop, setIsTop] = useState(true);
-  const pathname = usePathname();
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -54,7 +54,7 @@ const Page = () => {
                 Experience the world&apos;s most accurate PDF to Markdown<br />
                 conversion, powered by ChatGPT.
             </p>
-            <Link href="/sign-in" className="group relative inline-flex">
+            <Link href="/sign-up" className="group relative inline-flex">
                 <span className="animate-border-fast absolute -inset-[3px] rounded-lg bg-gradient-to-r from-[#FF8B64] via-orange-500 to-[#D7524A] opacity-70 blur-sm transition-all duration-200 group-hover:opacity-100"></span>
                 <span className="animate-border-fast absolute -inset-[2px] rounded-lg bg-gradient-to-r from-[#FF8B64] via-orange-500 to-[#D7524A]"></span>
                 <span className="relative inline-flex items-center justify-center px-8 py-3 rounded-lg bg-gray-900 text-white font-medium transition-colors duration-200 group-hover:bg-gray-800">Get Started</span>
