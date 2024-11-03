@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, ChangeEvent, useEffect } from 'react';
+import React, { useState, useRef, ChangeEvent, useEffect, Suspense } from 'react';
 import { Search, Plus, X, SendHorizontal } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -214,7 +214,8 @@ const ChatPanel = ({ isOpen, onClose, selectedPdf, pdfContents }: ChatPanelProps
   );
 };
 
-const PDFAnalyzerDashboard = () => {
+// PDFAnalyzerContent component that uses useSearchParams
+const PDFAnalyzerContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialPdfId = searchParams.get('pdf');
@@ -694,6 +695,19 @@ const PDFAnalyzerDashboard = () => {
         </div>
       )}
     </>
+  );
+};
+
+// Main PDFAnalyzerDashboard component with Suspense
+const PDFAnalyzerDashboard = () => {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      </div>
+    }>
+      <PDFAnalyzerContent />
+    </Suspense>
   );
 };
 
