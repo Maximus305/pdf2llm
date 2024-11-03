@@ -135,7 +135,7 @@ const ChatPanel = ({ isOpen, onClose, selectedPdf, pdfContents }: ChatPanelProps
     >
       <div className="flex justify-between items-center p-6 border-b">
         <div>
-          <h3 className="text-xl font-semibold">Chat about your PDF</h3>
+          <h3 className="text-xl font-semibold">Chat about your PDF!</h3>
           {selectedPdf && (
             <p className="text-sm text-gray-500 mt-1">
               Currently analyzing: {selectedPdf}
