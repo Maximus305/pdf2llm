@@ -25,10 +25,12 @@ import {
   query,
   where,
   deleteDoc,
+  doc  // Add this import
 } from 'firebase/firestore';
 
 interface PDFFile {
   id: string;
+  firestoreId?: string; // Add this line
   name: string;
   isProcessing: boolean;
   pages: AnalyzedPage[];
@@ -41,7 +43,7 @@ interface AnalyzedPage {
 }
 
 interface FirestorePDF {
-  id: string;
+  id: string;  
   name: string;
   userId: string;
   pages: AnalyzedPage[];
@@ -262,7 +264,8 @@ const PDFAnalyzerContent = () => {
       for (const doc of querySnapshot.docs) {
         const data = doc.data() as FirestorePDF;
         pdfs.push({
-          id: doc.id,
+          id: Math.random().toString(36).substr(2, 9), // or any other unique ID generation
+          firestoreId: doc.id, // Store the Firestore document ID
           name: data.name,
           pages: data.pages,
           isProcessing: false
@@ -276,24 +279,31 @@ const PDFAnalyzerContent = () => {
     }
   };
 
-  const savePDFToFirebase = async (pdfFile: PDFFile, analyzedPages: AnalyzedPage[]) => {
-    if (!user) return;
+  
+const savePDFToFirebase = async (pdfFile: PDFFile, analyzedPages: AnalyzedPage[]) => {
+  if (!user) return;
 
-    try {
-      const pdfData: FirestorePDF = {
-        id: pdfFile.id,
-        name: pdfFile.name,
-        userId: user.uid,
-        pages: analyzedPages,
-        createdAt: Date.now()
-      };
-      
-      await addDoc(collection(db, 'pdfs'), pdfData);
-    } catch (error) {
-      console.error('Error saving PDF:', error);
-      throw new Error('Failed to save PDF');
-    }
-  };
+  try {
+    const pdfData: FirestorePDF = {
+      id: pdfFile.id,  // Include the original id
+      name: pdfFile.name,
+      userId: user.uid,
+      pages: analyzedPages,
+      createdAt: Date.now()
+    };
+    
+    // Save the document and get its ID
+    const docRef = await addDoc(collection(db, 'pdfs'), pdfData);
+    
+    // Update local state with Firestore document ID
+    setPdfFiles(prev => prev.map(pdf => 
+      pdf.id === pdfFile.id ? { ...pdf, firestoreId: docRef.id } : pdf
+    ));
+  } catch (error) {
+    console.error('Error saving PDF:', error);
+    throw new Error('Failed to save PDF');
+  }
+};
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     if (!user) {
@@ -381,17 +391,16 @@ const PDFAnalyzerContent = () => {
       return;
     }
   
+    const pdfToDelete = pdfFiles.find(pdf => pdf.id === pdfId);
+    if (!pdfToDelete?.firestoreId) {
+      console.error('Firestore ID not found for PDF');
+      return;
+    }
+  
     try {
-      // Find the PDF document in Firestore
-      const pdfQuery = query(
-        collection(db, 'pdfs'),
-        where('id', '==', pdfId)
-      );
-      const querySnapshot = await getDocs(pdfQuery);
-  
-      // Delete each document found
-      await Promise.all(querySnapshot.docs.map(doc => deleteDoc(doc.ref)));
-  
+      // Delete the document directly using its Firestore ID
+      await deleteDoc(doc(db, 'pdfs', pdfToDelete.firestoreId));
+      
       // Update local state to remove the deleted PDF
       setPdfFiles(prev => prev.filter(pdf => pdf.id !== pdfId));
       if (selectedFileId === pdfId) {
