@@ -70,7 +70,7 @@ export default function AuthPage() {
               {isLoading ? "Signing in..." : "Log in"}
             </Button>
             <div className="text-center text-sm">
-              <span className="text-gray-600">Don't have an account? </span>
+            <span className="text-gray-600">Don&apos;t have an account? </span>
               <button
                 type="button"
                 onClick={() => router.push('/sign-up')}
