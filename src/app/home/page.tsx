@@ -13,16 +13,11 @@ import { cn } from "@/lib/utils";
 import { FiCopy, FiDownload } from 'react-icons/fi';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { auth, storage, db } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 import { 
   onAuthStateChanged, 
   User
 } from 'firebase/auth';
-import { 
-  ref, 
-  uploadBytes, 
-  deleteObject
-} from 'firebase/storage';
 import {
   collection,
   addDoc,
@@ -33,13 +28,10 @@ import {
 } from 'firebase/firestore';
 
 interface PDFFile {
-  file: File;
   id: string;
   name: string;
   isProcessing: boolean;
   pages: AnalyzedPage[];
-  storagePath?: string;
-  userId?: string;
 }
 
 interface AnalyzedPage {
@@ -50,7 +42,6 @@ interface AnalyzedPage {
 interface FirestorePDF {
   id: string;
   name: string;
-  storagePath: string;
   userId: string;
   pages: AnalyzedPage[];
   createdAt: number;
@@ -214,7 +205,6 @@ const ChatPanel = ({ isOpen, onClose, selectedPdf, pdfContents }: ChatPanelProps
   );
 };
 
-// PDFAnalyzerContent component that uses useSearchParams
 const PDFAnalyzerContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -274,10 +264,7 @@ const PDFAnalyzerContent = () => {
           id: doc.id,
           name: data.name,
           pages: data.pages,
-          isProcessing: false,
-          file: new File([], data.name),
-          storagePath: data.storagePath,
-          userId: data.userId
+          isProcessing: false
         });
       }
       
@@ -292,22 +279,15 @@ const PDFAnalyzerContent = () => {
     if (!user) return;
 
     try {
-      const storagePath = `pdfs/${user.uid}/${pdfFile.id}/${pdfFile.name}`;
-      const storageRef = ref(storage, storagePath);
-      await uploadBytes(storageRef, pdfFile.file);
-      
       const pdfData: FirestorePDF = {
         id: pdfFile.id,
         name: pdfFile.name,
-        storagePath,
         userId: user.uid,
         pages: analyzedPages,
         createdAt: Date.now()
       };
       
       await addDoc(collection(db, 'pdfs'), pdfData);
-      
-      return storagePath;
     } catch (error) {
       console.error('Error saving PDF:', error);
       throw new Error('Failed to save PDF');
@@ -325,12 +305,10 @@ const PDFAnalyzerContent = () => {
       const newPDFs = Array.from(files).filter(file => file.type === "application/pdf");
       if (newPDFs.length > 0) {
         const formattedPDFs = newPDFs.map(file => ({
-          file,
           id: Math.random().toString(36).substr(2, 9),
           name: file.name,
           isProcessing: false,
-          pages: [],
-          userId: user.uid
+          pages: []
         }));
 
         setPdfFiles(prev => [...prev, ...formattedPDFs]);
@@ -338,25 +316,27 @@ const PDFAnalyzerContent = () => {
         
         updateSelectedFile(formattedPDFs[0].id);
         
-        formattedPDFs.forEach(pdf => handleProcessing(pdf));
+        for (let i = 0; i < formattedPDFs.length; i++) {
+          await handleProcessing(formattedPDFs[i], newPDFs[i]);
+        }
       } else {
         setErrorMessage("Please select valid PDF files.");
       }
     }
   };
 
-  const handleProcessing = async (pdfFile: PDFFile) => {
+  const handleProcessing = async (pdfFile: PDFFile, file: File) => {
     setPdfFiles(prev => prev.map(pdf => 
       pdf.id === pdfFile.id ? { ...pdf, isProcessing: true } : pdf
     ));
 
     try {
-      const arrayBuffer = await pdfFile.file.arrayBuffer();
+      const arrayBuffer = await file.arrayBuffer();
       const pdfDoc = await PDFDocument.load(arrayBuffer);
       const numPages = pdfDoc.getPageCount();
 
       const formData = new FormData();
-      formData.append('file', pdfFile.file);
+      formData.append('file', file);
 
       const response = await axios.post('/api/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -374,14 +354,13 @@ const PDFAnalyzerContent = () => {
         })
       );
 
-      const storagePath = await savePDFToFirebase(pdfFile, analyzedPages);
+      await savePDFToFirebase(pdfFile, analyzedPages);
 
       setPdfFiles(prev => prev.map(pdf => 
         pdf.id === pdfFile.id ? { 
           ...pdf, 
           isProcessing: false, 
-          pages: analyzedPages,
-          storagePath 
+          pages: analyzedPages
         } : pdf
       ));
 
@@ -397,12 +376,6 @@ const PDFAnalyzerContent = () => {
 
   const handleDeletePDF = async (pdfId: string) => {
     try {
-      const pdfToDelete = pdfFiles.find(pdf => pdf.id === pdfId);
-      if (!pdfToDelete?.storagePath) return;
-
-      const storageRef = ref(storage, pdfToDelete.storagePath);
-      await deleteObject(storageRef);
-
       const pdfQuery = query(
         collection(db, 'pdfs'),
         where('id', '==', pdfId)
@@ -466,7 +439,7 @@ const PDFAnalyzerContent = () => {
               <span className="font-semibold">PDF2LLM.AI</span>
             </div>
             <div className="space-y-2">
-              <Link href="/dashboard" className={`${gradientButtonStyle} rounded px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95`}>
+            <Link href="/dashboard" className={`${gradientButtonStyle} rounded px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95`}>
                 Dashboard
               </Link>
               <Link href="/api" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
