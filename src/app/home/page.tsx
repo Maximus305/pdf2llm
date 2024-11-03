@@ -32,6 +32,7 @@ interface PDFFile {
   name: string;
   isProcessing: boolean;
   pages: AnalyzedPage[];
+  userId?: string;
 }
 
 interface AnalyzedPage {
@@ -375,14 +376,23 @@ const PDFAnalyzerContent = () => {
   };
 
   const handleDeletePDF = async (pdfId: string) => {
+    if (!user) {
+      setErrorMessage('You must be signed in to delete a PDF.');
+      return;
+    }
+  
     try {
+      // Find the PDF document in Firestore
       const pdfQuery = query(
         collection(db, 'pdfs'),
         where('id', '==', pdfId)
       );
       const querySnapshot = await getDocs(pdfQuery);
+  
+      // Delete each document found
       await Promise.all(querySnapshot.docs.map(doc => deleteDoc(doc.ref)));
-
+  
+      // Update local state to remove the deleted PDF
       setPdfFiles(prev => prev.filter(pdf => pdf.id !== pdfId));
       if (selectedFileId === pdfId) {
         updateSelectedFile(null);
