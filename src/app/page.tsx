@@ -28,17 +28,11 @@ const Page = () => {
     <div className="relative">
       {/* Header */}
       <header className={`fixed top-0 left-0 right-0 flex justify-between items-center p-4 z-50 transition-colors duration-300 ${isTop ? 'bg-transparent text-white' : 'bg-white text-black backdrop-filter backdrop-blur-md'}`}>
-        {/* Logo */}
         <div className="flex items-center space-x-2">
           <Image src="/images/logo.svg" alt="Logo" width={28} height={28} />
           <span className="font-semibold text-base">PDF2LLM.AI</span>
         </div>
-
-        {/* Sign Up / Sign In Buttons */}
         <div className="flex space-x-3">
-          <Link href="/sign-up" className="text-sm font-semibold hover:text-gray-300 transition-colors">
-            Sign Up
-          </Link>
           <Link href="/sign-in" className="text-sm font-semibold hover:text-gray-300 transition-colors">
             Sign In
           </Link>
@@ -47,15 +41,12 @@ const Page = () => {
 
       {/* Main Content */}
       <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden" style={{ paddingTop: '112px' }}>
-        {/* Background with gradient */}
         <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-gray-900 to-black" />
         
-        {/* Glow effects */}
         <div className="absolute top-20 left-10 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl" />
         <div className="absolute top-1/3 right-10 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl" />
         <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-80 h-80 bg-red-500/10 rounded-full blur-3xl" />
 
-        {/* Main Content */}
         <div className="text-center mb-32 relative z-10">
             <h1 className="text-white text-5xl font-semibold mb-4 drop-shadow-2xl">
                 Transform PDFs into Precise Markdown.
@@ -64,26 +55,23 @@ const Page = () => {
                 Experience the world&apos;s most accurate PDF to Markdown<br />
                 conversion, powered by ChatGPT.
             </p>
-            <Link href="/sign-in" className="px-8 py-3 text-white bg-gradient-to-r from-[#D7524A] to-[#FF8B64] rounded-lg transition-all duration-300 relative group hover:shadow-orange">
-                <span className="relative z-10">Get Started</span>
+            <Link href="/sign-in" className="group relative inline-flex">
+                <span className="animate-border-fast absolute -inset-[3px] rounded-lg bg-gradient-to-r from-[#FF8B64] via-orange-500 to-[#D7524A] opacity-70 blur-sm transition-all duration-200 group-hover:opacity-100"></span>
+                <span className="animate-border-fast absolute -inset-[2px] rounded-lg bg-gradient-to-r from-[#FF8B64] via-orange-500 to-[#D7524A]"></span>
+                <span className="relative inline-flex items-center justify-center px-8 py-3 rounded-lg bg-gray-900 text-white font-medium transition-colors duration-200 group-hover:bg-gray-800">Get Started</span>
             </Link>
         </div>
       </div>
-
-      {/* Display Sign In/Sign Up Message */}
-      {isSignInPage && <p className="text-center text-white">You are on the Sign In page.</p>}
-      {isSignUpPage && <p className="text-center text-white">You are on the Sign Up page.</p>}
 
       {/* Features Section */}
       <div className="min-h-screen bg-white flex flex-col items-center justify-center p-8">
         <div className="max-w-6xl w-full">
           <h2 className="text-5xl font-medium text-center mb-20">
-            We convert pdfs! <span className="bg-[#D7524A]/20 px-2 rounded">beyond</span><br />
+            We convert pdfs <span className="bg-[#FF8B64] px-1">beyond</span><br />
             text with <span className="font-bold">AI</span>.
           </h2>
 
           <div className="flex justify-between items-center gap-12">
-            {/* PDF Document Illustration */}
             <div className="flex-1">
               <div className="bg-gray-100 rounded-lg p-8 shadow-lg">
                 <div className="space-y-2 mb-6">
@@ -102,12 +90,10 @@ const Page = () => {
               </div>
             </div>
 
-            {/* Arrow */}
             <div className="w-24 h-px bg-gray-300 relative">
               <div className="absolute -right-2 -top-1 w-3 h-3 border-t-2 border-r-2 border-gray-300 transform rotate-45"></div>
             </div>
 
-            {/* Status Card */}
             <div className="flex-1">
               <div className="bg-gray-900 rounded-lg p-8 space-y-8 shadow-lg border border-[#D7524A]">
                 <div className="flex items-center justify-between text-white">
@@ -136,7 +122,6 @@ const Page = () => {
           </h2>
 
           <div className="grid grid-cols-2 gap-4">
-            {/* Loading Card */}
             <div className="bg-gray-900 rounded-lg p-8 border border-gray-800">
               <div className="space-y-4">
                 <p className="text-white text-lg">Loading pdfs</p>
@@ -147,7 +132,6 @@ const Page = () => {
               </div>
             </div>
 
-            {/* Limits Card */}
             <div className="bg-gray-900 rounded-lg p-8 border border-gray-800">
               <h3 className="text-white text-6xl font-bold">
                 1k pages +<br />limits
@@ -160,7 +144,6 @@ const Page = () => {
   );
 };
 
-// Add the animation keyframe
 const styles = `
 @keyframes progress {
   0% { transform: translateX(-100%); }
@@ -179,9 +162,18 @@ const styles = `
 .convert-animation {
   animation: convert 3s ease-in-out infinite;
 }
+
+@keyframes border-move {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+.animate-border-fast {
+  background-size: 200% 200%;
+  animation: border-move 1s linear infinite;
+}
 `;
 
-// Add the styles to the document
 if (typeof document !== 'undefined') {
   const styleSheet = document.createElement('style');
   styleSheet.textContent = styles;

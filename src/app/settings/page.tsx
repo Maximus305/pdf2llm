@@ -1,11 +1,12 @@
-"use client"
+"use client";
 
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from 'next/link';
-import { db } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase'; // Ensure auth is correctly set up in firebaseConfig.js
+import { updateProfile } from "firebase/auth";
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 // Define a type for the user data
@@ -13,6 +14,7 @@ type UserData = {
   firstName: string;
   lastName: string;
   email: string;
+  chatModel: string;
 };
 
 const gradientButtonStyle = "bg-gradient-to-r from-[#D7524A] to-[#E2673F] text-white hover:opacity-90";
@@ -21,41 +23,78 @@ export default function SettingsPage() {
   const [userData, setUserData] = useState<UserData>({
     firstName: '',
     lastName: '',
-    email: ''
+    email: '',
+    chatModel: 'gpt-3.5', // Default chat model
   });
+  const [authUser, setAuthUser] = useState<any>(null);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const userDoc = await getDoc(doc(db, 'users', 'USER_ID')); // Replace 'USER_ID' with the actual user ID
-        if (userDoc.exists()) {
-          setUserData(userDoc.data() as UserData); // Use type assertion here
-        } else {
-          console.log('No such document!');
-        }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
+    // Set up Firebase Auth listener to get current user info
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setAuthUser(user);
+        // Load data from Firebase Auth
+        setUserData({
+          firstName: user.displayName?.split(" ")[0] || '',
+          lastName: user.displayName?.split(" ")[1] || '',
+          email: user.email || '',
+          chatModel: 'gpt-3.5', // You can default this or load from Firestore if preferred
+        });
+        loadAdditionalSettings(user.uid);
       }
-    };
+    });
 
-    fetchUserData();
+    return () => unsubscribe();
   }, []);
 
+  // Load additional settings (e.g., chat model) from Firestore
+  const loadAdditionalSettings = async (uid: string) => {
+    try {
+      const userDoc = await getDoc(doc(db, 'users', uid));
+      if (userDoc.exists()) {
+        setUserData((prevData) => ({ ...prevData, ...userDoc.data() as UserData }));
+      }
+    } catch (error) {
+      console.error('Error loading additional settings:', error);
+    }
+  };
+
+  // Handle saving changes to Firebase Authentication profile and Firestore
+  const handleSaveChanges = async () => {
+    try {
+      // Update Firebase Auth profile
+      if (authUser) {
+        await updateProfile(authUser, {
+          displayName: `${userData.firstName} ${userData.lastName}`
+        });
+        console.log('Auth profile updated successfully');
+      }
+
+      // Save chat model or other additional data to Firestore
+      await updateDoc(doc(db, 'users', authUser.uid), {
+        chatModel: userData.chatModel
+      });
+      console.log('User data updated in Firestore');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    }
+  };
+
+  // Handle input changes for name fields
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setUserData((prevData) => ({
       ...prevData,
-      [id]: value
+      [id]: value,
     }));
   };
 
-  const handleSaveChanges = async () => {
-    try {
-      await updateDoc(doc(db, 'users', 'USER_ID'), userData); // Replace 'USER_ID' with the actual user ID
-      console.log('User data updated successfully');
-    } catch (error) {
-      console.error('Error updating user data:', error);
-    }
+  // Handle chat model selection change
+  const handleModelChange = (value: string) => {
+    setUserData((prevData) => ({
+      ...prevData,
+      chatModel: value,
+    }));
   };
 
   return (
@@ -68,28 +107,16 @@ export default function SettingsPage() {
             <span className="font-semibold">PDF2LLM.AI</span>
           </div>
           <div className="space-y-2">
-            <Link 
-              href="/home" 
-              className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95"
-            >
+            <Link href="/home" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
               Dashboard
             </Link>
-            <Link 
-              href="/api" 
-              className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95"
-            >
+            <Link href="/api" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
               API
             </Link>
-            <Link 
-              href="/api-key" 
-              className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95"
-            >
+            <Link href="/api-key" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
               API Key
             </Link>
-            <Link 
-              href="/settings" 
-              className={`${gradientButtonStyle} rounded px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95`}
-            >
+            <Link href="/settings" className={`${gradientButtonStyle} rounded px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95`}>
               Settings
             </Link>
           </div>
@@ -145,20 +172,17 @@ export default function SettingsPage() {
                   <Input 
                     id="email" 
                     value={userData.email}
-                    onChange={handleInputChange}
-                    placeholder="Enter your email"
+                    readOnly
+                    placeholder="Your email is managed by Firebase"
                   />
                 </div>
-                <Button variant="outline" className="mb-0.5">
-                  Change
-                </Button>
               </div>
             </div>
 
             {/* Chat Model Settings */}
             <div className="space-y-4 pt-6 border-t">
               <h2 className="text-xl font-semibold">Default Chat Model</h2>
-              <Select defaultValue="gpt-3.5">
+              <Select value={userData.chatModel} onValueChange={handleModelChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a model" />
                 </SelectTrigger>
@@ -167,31 +191,6 @@ export default function SettingsPage() {
                   <SelectItem value="gpt-4">GPT-4</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-
-            {/* Credits Section */}
-            <div className="space-y-4 pt-6 border-t">
-              <h2 className="text-xl font-semibold">Credits</h2>
-              <div className="flex gap-4 items-center">
-                <div className="flex-1 bg-gray-100 p-3 rounded-md">
-                  <span className="text-sm text-gray-600">Credits left:</span>{" "}
-                  <span className="font-medium">50 credits</span>
-                </div>
-                <Button className="bg-green-500 hover:bg-green-600 text-white">
-                  Acquire more
-                </Button>
-              </div>
-            </div>
-
-            {/* Danger Zone */}
-            <div className="mt-8 border border-red-200 rounded-lg p-6 space-y-4">
-              <div className="space-y-2">
-                <h2 className="text-red-500 font-semibold">DANGER ZONE</h2>
-                <p className="text-sm text-gray-600">Irreversible and destructive actions</p>
-              </div>
-              <Button variant="outline" className="text-red-500 border-red-500 hover:bg-red-50">
-                Delete Account
-              </Button>
             </div>
           </div>
         </div>

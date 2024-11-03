@@ -6,15 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import axios from 'axios';
 import { PDFDocument } from 'pdf-lib';
 import { cn } from "@/lib/utils";
 import { FiCopy, FiDownload } from 'react-icons/fi';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { auth, storage, db } from '@/lib/firebase';
 import { 
   onAuthStateChanged, 
-  
   User
 } from 'firebase/auth';
 import { 
@@ -176,7 +177,9 @@ const ChatPanel = ({ isOpen, onClose, selectedPdf, pdfContents }: ChatPanelProps
                   : "bg-gray-100 text-gray-900"
               )}
             >
-              <ReactMarkdown>{message.content}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {message.content}
+              </ReactMarkdown>
             </div>
           ))}
           {isLoading && (
@@ -212,16 +215,33 @@ const ChatPanel = ({ isOpen, onClose, selectedPdf, pdfContents }: ChatPanelProps
 };
 
 const PDFAnalyzerDashboard = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialPdfId = searchParams.get('pdf');
+  
   const [pdfFiles, setPdfFiles] = useState<PDFFile[]>([]);
-  const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
+  const [selectedFileId, setSelectedFileId] = useState<string | null>(initialPdfId);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  
   const gradientButtonStyle = "bg-gradient-to-r from-[#D7524A] to-[#E2673F] text-white hover:opacity-90";
+  
+  const updateSelectedFile = (pdfId: string | null) => {
+    setSelectedFileId(pdfId);
+    if (pdfId) {
+      router.replace(`${window.location.pathname}?pdf=${pdfId}`, { 
+        scroll: false 
+      });
+    } else {
+      router.replace(window.location.pathname, { 
+        scroll: false 
+      });
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -236,8 +256,6 @@ const PDFAnalyzerDashboard = () => {
 
     return () => unsubscribe();
   }, []);
-
- 
 
   const loadUserPDFs = async (userId: string) => {
     try {
@@ -276,7 +294,6 @@ const PDFAnalyzerDashboard = () => {
       const storagePath = `pdfs/${user.uid}/${pdfFile.id}/${pdfFile.name}`;
       const storageRef = ref(storage, storagePath);
       await uploadBytes(storageRef, pdfFile.file);
-   
       
       const pdfData: FirestorePDF = {
         id: pdfFile.id,
@@ -317,7 +334,9 @@ const PDFAnalyzerDashboard = () => {
 
         setPdfFiles(prev => [...prev, ...formattedPDFs]);
         setErrorMessage(null);
-
+        
+        updateSelectedFile(formattedPDFs[0].id);
+        
         formattedPDFs.forEach(pdf => handleProcessing(pdf));
       } else {
         setErrorMessage("Please select valid PDF files.");
@@ -365,7 +384,7 @@ const PDFAnalyzerDashboard = () => {
         } : pdf
       ));
 
-      setSelectedFileId(pdfFile.id);
+      updateSelectedFile(pdfFile.id);
     } catch (error) {
       console.error('Error processing PDF:', error);
       setErrorMessage('An error occurred while processing the PDF.');
@@ -391,7 +410,9 @@ const PDFAnalyzerDashboard = () => {
       await Promise.all(querySnapshot.docs.map(doc => deleteDoc(doc.ref)));
 
       setPdfFiles(prev => prev.filter(pdf => pdf.id !== pdfId));
-      if (selectedFileId === pdfId) setSelectedFileId(null);
+      if (selectedFileId === pdfId) {
+        updateSelectedFile(null);
+      }
     } catch (error) {
       console.error('Error deleting PDF:', error);
       setErrorMessage('Failed to delete PDF');
@@ -444,7 +465,6 @@ const PDFAnalyzerDashboard = () => {
               <span className="font-semibold">PDF2LLM.AI</span>
             </div>
             <div className="space-y-2">
-              
               <Link href="/dashboard" className={`${gradientButtonStyle} rounded px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95`}>
                 Dashboard
               </Link>
@@ -460,7 +480,7 @@ const PDFAnalyzerDashboard = () => {
             </div>
           </div>
         </div>
-
+  
         {/* Main content */}
         <div className="flex-1 flex max-h-screen overflow-hidden">
           {/* PDF List */}
@@ -492,15 +512,16 @@ const PDFAnalyzerDashboard = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-7 gap-2">
               {filteredPdfFiles.length > 0 ? filteredPdfFiles.map((pdf) => (
                 <div 
                   key={pdf.id}
-                  className="flex flex-col items-center cursor-pointer relative"
-                  onClick={() => setSelectedFileId(pdf.id)}
+                  className={`flex flex-col items-center cursor-pointer relative p-2 rounded-lg aspect-square 
+                    ${pdf.id === selectedFileId ? 'bg-gray-100' : ''}`}
+                  onClick={() => updateSelectedFile(pdf.id)}
                 >
-                  <div className="mb-2 relative">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-gray-400">
+                  <div className="flex items-center justify-center flex-1">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-gray-400">
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                       <polyline points="14 2 14 8 20 8" />
                       <path d="M12 18v-6" />
@@ -512,21 +533,10 @@ const PDFAnalyzerDashboard = () => {
                       </div>
                     )}
                   </div>
-                  <span className="text-sm text-center">{pdf.name}</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="absolute top-0 right-0 opacity-0 hover:opacity-100"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeletePDF(pdf.id);
-                    }}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+                  <span className="text-sm text-center truncate w-full mt-1">{pdf.name}</span>
                 </div>
               )) : (
-                <div className="col-span-4 text-center text-gray-500 mt-10">
+                <div className="col-span-7 text-center text-gray-500 mt-10">
                   {!user ? (
                     "Please sign in to view your PDFs"
                   ) : searchQuery ? (
@@ -538,7 +548,7 @@ const PDFAnalyzerDashboard = () => {
               )}
             </div>
           </div>
-
+  
           {/* PDF Preview */}
           <div className="w-1/2 flex flex-col h-screen max-h-screen overflow-hidden">
             {/* Fixed header */}
@@ -565,7 +575,7 @@ const PDFAnalyzerDashboard = () => {
                       variant="ghost" 
                       size="icon" 
                       className="text-gray-600"
-                      onClick={() => setSelectedFileId(null)}
+                      onClick={() => updateSelectedFile(null)}
                     >
                       <X className="h-5 w-5" />
                     </Button>
@@ -573,7 +583,7 @@ const PDFAnalyzerDashboard = () => {
                 )}
               </div>
             </div>
-
+  
             {/* Scrollable content */}
             <div className="flex-1 overflow-y-auto px-6 pb-6">
               {selectedFile ? (
@@ -612,7 +622,9 @@ const PDFAnalyzerDashboard = () => {
                       </div>
                       <div className="prose max-w-none bg-white rounded-lg p-4">
                         {page.description ? (
-                          <ReactMarkdown>{page.description}</ReactMarkdown>
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {page.description}
+                          </ReactMarkdown>
                         ) : (
                           <div className="text-gray-500 text-center py-4">
                             Processing page content...
@@ -631,7 +643,7 @@ const PDFAnalyzerDashboard = () => {
           </div>
         </div>
       </div>
-
+  
       {/* Overlay when chat is open */}
       {isChatOpen && (
         <div 
@@ -639,7 +651,7 @@ const PDFAnalyzerDashboard = () => {
           onClick={() => setIsChatOpen(false)}
         />
       )}
-
+  
       {/* Chat Panel */}
       <ChatPanel 
         isOpen={isChatOpen}
@@ -650,7 +662,7 @@ const PDFAnalyzerDashboard = () => {
           content: page.description
         }))}
       />
-
+  
       {/* Hidden file input */}
       <input
         type="file"
@@ -660,7 +672,7 @@ const PDFAnalyzerDashboard = () => {
         multiple
         onChange={handleFileChange}
       />
-
+  
       {/* Error message toast */}
       {errorMessage && (
         <div 
