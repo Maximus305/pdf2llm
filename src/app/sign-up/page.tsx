@@ -22,7 +22,7 @@ export default function SignUpPage() {
 
     try {
       await signUp(email, password, name);
-      router.push('/home');
+      router.push('/dashboard');
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An unexpected error occurred');
     } finally {
