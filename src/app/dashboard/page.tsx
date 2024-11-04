@@ -54,10 +54,7 @@ interface FirestorePDF {
   createdAt: number;
 }
 
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-}
+
 
 const PDFAnalyzerContent = () => {
   const router = useRouter();
@@ -136,33 +133,6 @@ const PDFAnalyzerContent = () => {
       return () => unsubscribe();
     }, [initialPdfId]);
 
-  const loadUserPDFs = async (userId: string) => {
-    try {
-      const pdfQuery = query(
-        collection(db, 'pdfs'),
-        where('userId', '==', userId)
-      );
-      
-      const querySnapshot = await getDocs(pdfQuery);
-      const pdfs: PDFFile[] = [];
-      
-      for (const doc of querySnapshot.docs) {
-        const data = doc.data() as FirestorePDF;
-        pdfs.push({
-          id: Math.random().toString(36).substr(2, 9),
-          firestoreId: doc.id,
-          name: data.name,
-          pages: data.pages,
-          isProcessing: false
-        });
-      }
-      
-      setPdfFiles(pdfs);
-    } catch (error) {
-      console.error('Error loading PDFs:', error);
-      setErrorMessage('Failed to load your PDFs');
-    }
-  };
 
   const savePDFToFirebase = async (pdfFile: PDFFile, analyzedPages: AnalyzedPage[]) => {
     if (!user) return;
@@ -313,10 +283,12 @@ const PDFAnalyzerContent = () => {
       setErrorMessage('Failed to delete PDF');
     }
   };
-
+  const [isClicked, setIsClicked] = useState(false);
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
+      setIsClicked(true); // Trigger green class on success
+      setTimeout(() => setIsClicked(false), 1000); // Remove green class after 1 second
     } catch (err) {
       console.error('Failed to copy text:', err);
     }
@@ -509,14 +481,14 @@ const PDFAnalyzerContent = () => {
                           </div>
                         </div>
                         <div className="flex space-x-2">
-                          <Button 
-                            size="icon" 
-                            variant="outline" 
-                            className="h-8 w-8"
-                            onClick={() => handleCopy(page.description)}
-                          >
-                            <FiCopy className="h-4 w-4 text-gray-600" />
-                          </Button>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className={`h-8 w-8 ${isClicked ? 'bg-green-500 hover:bg-green-500' : ''}`} // Apply green background if clicked, overriding hover
+                          onClick={() => handleCopy(page.description)}
+                        >
+                          <FiCopy className="h-4 w-4 text-gray-600" />
+                        </Button>
                           
                           <Button 
                             size="icon" 
