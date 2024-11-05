@@ -22,7 +22,7 @@ const UnderConstructionPage = () => {
           </div>
           <div className="space-y-2">
             <Link 
-              href="/home" 
+              href="/dashboard" 
               className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95"
             >
               Dashboard
@@ -45,6 +45,9 @@ const UnderConstructionPage = () => {
             >
               Settings
             </Link>
+            <Link href="/credits" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
+                Credits
+              </Link>
           </div>
         </div>
       </div>

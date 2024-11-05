@@ -1,10 +1,10 @@
+// app/home/page.tsx
 "use client";
 
 import React, { useState, useRef, ChangeEvent, useEffect, Suspense } from 'react';
-import { Search, Plus, X, SendHorizontal } from 'lucide-react';
+import { Search, Plus, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import axios from 'axios';
@@ -25,10 +25,16 @@ import {
   query,
   where,
   deleteDoc,
+  doc
 } from 'firebase/firestore';
 
+// Import local components
+import ChatPanel from './ChatPanel';
+
+// Interfaces
 interface PDFFile {
   id: string;
+  firestoreId?: string;
   name: string;
   isProcessing: boolean;
   pages: AnalyzedPage[];
@@ -41,18 +47,15 @@ interface AnalyzedPage {
 }
 
 interface FirestorePDF {
-  id: string;
+  id: string;  
   name: string;
   userId: string;
   pages: AnalyzedPage[];
   createdAt: number;
 }
 
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-}
 
+<<<<<<< HEAD:src/app/home/page.tsx
 interface ChatPanelProps {
   isOpen: boolean;
   onClose: () => void;
@@ -156,7 +159,7 @@ const ChatPanel = ({ isOpen, onClose, selectedPdf, pdfContents }: ChatPanelProps
         <div className="space-y-4">
           {messages.length === 0 && selectedPdf && (
             <div className="text-gray-500 text-center p-4">
-              Ask a question about your PDF!
+              Ask a question about your PDF
             </div>
           )}
           {messages.map((message, index) => (
@@ -205,6 +208,8 @@ const ChatPanel = ({ isOpen, onClose, selectedPdf, pdfContents }: ChatPanelProps
     </div>
   );
 };
+=======
+>>>>>>> c6be135c30d3195c3ad98402be99a96c4a8f8db4:src/app/dashboard/page.tsx
 
 const PDFAnalyzerContent = () => {
   const router = useRouter();
@@ -221,7 +226,7 @@ const PDFAnalyzerContent = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const gradientButtonStyle = "bg-gradient-to-r from-[#D7524A] to-[#E2673F] text-white hover:opacity-90";
-  
+
   const updateSelectedFile = (pdfId: string | null) => {
     setSelectedFileId(pdfId);
     if (pdfId) {
@@ -235,60 +240,72 @@ const PDFAnalyzerContent = () => {
     }
   };
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setIsLoading(false);
-      if (user) {
-        loadUserPDFs(user.uid);
-      } else {
-        setPdfFiles([]);
-      }
-    });
+  
+    useEffect(() => {
+      const unsubscribe = onAuthStateChanged(auth, async (user) => {
+        setUser(user);
+        if (user) {
+          try {
+            // Load PDFs
+            const pdfQuery = query(
+              collection(db, 'pdfs'),
+              where('userId', '==', user.uid)
+            );
+            
+            const querySnapshot = await getDocs(pdfQuery);
+            const pdfs: PDFFile[] = [];
+            
+            for (const doc of querySnapshot.docs) {
+              const data = doc.data() as FirestorePDF;
+              pdfs.push({
+                id: data.id, // Use the original ID instead of generating a new one
+                firestoreId: doc.id,
+                name: data.name,
+                pages: data.pages,
+                isProcessing: false
+              });
+            }
+            
+            setPdfFiles(pdfs);
+            
+            // If there's an initialPdfId, find and select the corresponding PDF
+            if (initialPdfId) {
+              const pdfExists = pdfs.some(pdf => pdf.id === initialPdfId);
+              if (pdfExists) {
+                setSelectedFileId(initialPdfId);
+              }
+            }
+          } catch (error) {
+            console.error('Error loading PDFs:', error);
+            setErrorMessage('Failed to load your PDFs');
+          }
+        } else {
+          setPdfFiles([]);
+        }
+        setIsLoading(false);
+      });
 
-    return () => unsubscribe();
-  }, []);
+      return () => unsubscribe();
+    }, [initialPdfId]);
 
-  const loadUserPDFs = async (userId: string) => {
-    try {
-      const pdfQuery = query(
-        collection(db, 'pdfs'),
-        where('userId', '==', userId)
-      );
-      
-      const querySnapshot = await getDocs(pdfQuery);
-      const pdfs: PDFFile[] = [];
-      
-      for (const doc of querySnapshot.docs) {
-        const data = doc.data() as FirestorePDF;
-        pdfs.push({
-          id: doc.id,
-          name: data.name,
-          pages: data.pages,
-          isProcessing: false
-        });
-      }
-      
-      setPdfFiles(pdfs);
-    } catch (error) {
-      console.error('Error loading PDFs:', error);
-      setErrorMessage('Failed to load your PDFs');
-    }
-  };
 
   const savePDFToFirebase = async (pdfFile: PDFFile, analyzedPages: AnalyzedPage[]) => {
     if (!user) return;
-
+  
     try {
       const pdfData: FirestorePDF = {
-        id: pdfFile.id,
+        id: pdfFile.id, // Use the original ID
         name: pdfFile.name,
         userId: user.uid,
         pages: analyzedPages,
         createdAt: Date.now()
       };
       
-      await addDoc(collection(db, 'pdfs'), pdfData);
+      const docRef = await addDoc(collection(db, 'pdfs'), pdfData);
+      
+      setPdfFiles(prev => prev.map(pdf => 
+        pdf.id === pdfFile.id ? { ...pdf, firestoreId: docRef.id } : pdf
+      ));
     } catch (error) {
       console.error('Error saving PDF:', error);
       throw new Error('Failed to save PDF');
@@ -300,25 +317,48 @@ const PDFAnalyzerContent = () => {
       setErrorMessage('Please sign in to upload PDFs');
       return;
     }
-
+  
     const files = event.target.files;
     if (files) {
       const newPDFs = Array.from(files).filter(file => file.type === "application/pdf");
       if (newPDFs.length > 0) {
-        const formattedPDFs = newPDFs.map(file => ({
-          id: Math.random().toString(36).substr(2, 9),
-          name: file.name,
-          isProcessing: false,
-          pages: []
-        }));
-
+        const formattedPDFs = newPDFs.map(file => {
+          const id = `${file.name}-${Date.now()}`.replace(/[^a-zA-Z0-9]/g, '-');
+          return {
+            id,
+            name: file.name,
+            isProcessing: false,
+            pages: []
+          };
+        });
+  
+        // Update state with new PDFs while preserving existing ones
         setPdfFiles(prev => [...prev, ...formattedPDFs]);
         setErrorMessage(null);
-        
-        updateSelectedFile(formattedPDFs[0].id);
-        
+  
+        // Select the first new PDF if there's no currently selected PDF
+        if (!selectedFileId) {
+          updateSelectedFile(formattedPDFs[0].id);
+        }
+  
+        // Process each new PDF
         for (let i = 0; i < formattedPDFs.length; i++) {
-          await handleProcessing(formattedPDFs[i], newPDFs[i]);
+          try {
+            await handleProcessing(formattedPDFs[i], newPDFs[i]);
+          } catch (error) {
+            console.error(`Error processing PDF ${formattedPDFs[i].name}:`, error);
+            // Update the specific PDF's state to show error
+            setPdfFiles(prev => prev.map(pdf => 
+              pdf.id === formattedPDFs[i].id 
+                ? { ...pdf, isProcessing: false, error: true } 
+                : pdf
+            ));
+          }
+        }
+  
+        // Clear the file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
         }
       } else {
         setErrorMessage("Please select valid PDF files.");
@@ -327,22 +367,23 @@ const PDFAnalyzerContent = () => {
   };
 
   const handleProcessing = async (pdfFile: PDFFile, file: File) => {
+    // Update processing state for this specific PDF
     setPdfFiles(prev => prev.map(pdf => 
       pdf.id === pdfFile.id ? { ...pdf, isProcessing: true } : pdf
     ));
-
+  
     try {
       const arrayBuffer = await file.arrayBuffer();
       const pdfDoc = await PDFDocument.load(arrayBuffer);
       const numPages = pdfDoc.getPageCount();
-
+  
       const formData = new FormData();
       formData.append('file', file);
-
+  
       const response = await axios.post('/api/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-
+  
       const analyzedPages = await Promise.all(
         Array.from({ length: numPages }, async (_, i) => {
           const analysisResponse = await axios.post('/api/analyze-image', {
@@ -354,24 +395,22 @@ const PDFAnalyzerContent = () => {
           };
         })
       );
-
+  
       await savePDFToFirebase(pdfFile, analyzedPages);
-
+  
+      // Update the state with the processed PDF while preserving other PDFs
       setPdfFiles(prev => prev.map(pdf => 
         pdf.id === pdfFile.id ? { 
           ...pdf, 
           isProcessing: false, 
-          pages: analyzedPages
+          pages: analyzedPages,
+          error: false
         } : pdf
       ));
-
-      updateSelectedFile(pdfFile.id);
+  
     } catch (error) {
       console.error('Error processing PDF:', error);
-      setErrorMessage('An error occurred while processing the PDF.');
-      setPdfFiles(prev => prev.map(pdf => 
-        pdf.id === pdfFile.id ? { ...pdf, isProcessing: false } : pdf
-      ));
+      throw error; // Let the parent handler deal with the error
     }
   };
 
@@ -381,18 +420,15 @@ const PDFAnalyzerContent = () => {
       return;
     }
   
+    const pdfToDelete = pdfFiles.find(pdf => pdf.id === pdfId);
+    if (!pdfToDelete?.firestoreId) {
+      console.error('Firestore ID not found for PDF');
+      return;
+    }
+  
     try {
-      // Find the PDF document in Firestore
-      const pdfQuery = query(
-        collection(db, 'pdfs'),
-        where('id', '==', pdfId)
-      );
-      const querySnapshot = await getDocs(pdfQuery);
-  
-      // Delete each document found
-      await Promise.all(querySnapshot.docs.map(doc => deleteDoc(doc.ref)));
-  
-      // Update local state to remove the deleted PDF
+      await deleteDoc(doc(db, 'pdfs', pdfToDelete.firestoreId));
+      
       setPdfFiles(prev => prev.filter(pdf => pdf.id !== pdfId));
       if (selectedFileId === pdfId) {
         updateSelectedFile(null);
@@ -402,10 +438,12 @@ const PDFAnalyzerContent = () => {
       setErrorMessage('Failed to delete PDF');
     }
   };
-
+  const [isClicked, setIsClicked] = useState(false);
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
+      setIsClicked(true); // Trigger green class on success
+      setTimeout(() => setIsClicked(false), 1000); // Remove green class after 1 second
     } catch (err) {
       console.error('Failed to copy text:', err);
     }
@@ -449,7 +487,7 @@ const PDFAnalyzerContent = () => {
               <span className="font-semibold">PDF2LLM.AI</span>
             </div>
             <div className="space-y-2">
-            <Link href="/dashboard" className={`${gradientButtonStyle} rounded px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95`}>
+              <Link href="/dashboard" className={`${gradientButtonStyle} rounded px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95`}>
                 Dashboard
               </Link>
               <Link href="/api" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
@@ -460,6 +498,9 @@ const PDFAnalyzerContent = () => {
               </Link>
               <Link href="/settings" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
                 Settings
+              </Link>
+              <Link href="/credits" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
+                Credits
               </Link>
             </div>
           </div>
@@ -534,8 +575,7 @@ const PDFAnalyzerContent = () => {
                 <div className="col-span-7 text-center text-gray-500 mt-10">
                   {!user ? (
                     "Please sign in to view your PDFs"
-                  ) : searchQuery ? (
-                    "No PDFs match your search"
+                  ) : searchQuery ? ("No PDFs match your search"
                   ) : (
                     "Click on + to add your first pdf"
                   )}
@@ -596,14 +636,14 @@ const PDFAnalyzerContent = () => {
                           </div>
                         </div>
                         <div className="flex space-x-2">
-                          <Button 
-                            size="icon" 
-                            variant="outline" 
-                            className="h-8 w-8"
-                            onClick={() => handleCopy(page.description)}
-                          >
-                            <FiCopy className="h-4 w-4 text-gray-600" />
-                          </Button>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className={`h-8 w-8 ${isClicked ? 'bg-green-500 hover:bg-green-500' : ''}`} // Apply green background if clicked, overriding hover
+                          onClick={() => handleCopy(page.description)}
+                        >
+                          <FiCopy className="h-4 w-4 text-gray-600" />
+                        </Button>
                           
                           <Button 
                             size="icon" 
