@@ -60,7 +60,7 @@ import { NextRequest, NextResponse } from 'next/server';
             content: [
               {
                 type: "text",
-                text: 'say everything you see in the image but in markdown, including describeing images and charts dont tell me that its markdown (or include the three grave accents)just show markdown'
+                text: 'say everything you see in the image but in markdown, including describeing images and charts dont tell me that its markdown (or include the three grave accents)just show markdown and also all the text no'
               },
               {
                 type: "image_url",
@@ -71,7 +71,7 @@ import { NextRequest, NextResponse } from 'next/server';
             ]
           }
         ],
-        max_tokens: 300
+        max_tokens: 3000
       }),
     });
 

@@ -3,13 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import Link from 'next/link';
 import { auth, db } from '@/lib/firebase';
 import { updateProfile, User, onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { UserIcon, MailIcon, BrainCircuit, Bell, Loader2,Settings } from 'lucide-react';
+import { UserIcon, MailIcon, Bell, Loader2, Settings } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface CustomToastProps {
@@ -41,7 +40,7 @@ type UserData = {
   firstName: string;
   lastName: string;
   email: string;
-  chatModel: string;
+  credits: number;
 };
 
 type ToastState = {
@@ -57,7 +56,7 @@ export default function SettingsPage() {
     firstName: '',
     lastName: '',
     email: '',
-    chatModel: 'gpt-3.5',
+    credits: 0,
   });
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -101,14 +100,14 @@ export default function SettingsPage() {
           firstName: data.firstName || user.displayName?.split(" ")[0] || '',
           lastName: data.lastName || user.displayName?.split(" ")[1] || '',
           email: user.email || '',
-          chatModel: data.chatModel || 'gpt-3.5',
+          credits: data.credits || 10, // Default to 10 if not set
         });
       } else {
         const newUserData = {
           firstName: user.displayName?.split(" ")[0] || '',
           lastName: user.displayName?.split(" ")[1] || '',
           email: user.email || '',
-          chatModel: 'gpt-3.5',
+          credits: 10, // Initialize with 10 credits
         };
         await setDoc(userDocRef, newUserData);
         setUserData(newUserData);
@@ -154,7 +153,7 @@ export default function SettingsPage() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-            <div className="w-48 bg-white border-r border-gray-200 flex-shrink-0 flex flex-col">
+      <div className="w-48 bg-white border-r border-gray-200 flex-shrink-0 flex flex-col">
         <div className="p-4 flex-grow">
           <div className="flex items-center space-x-2 mb-6">
             <img src="/images/logo.svg" alt="Logo" className="h-6 w-6" />
@@ -273,31 +272,27 @@ export default function SettingsPage() {
               </CardContent>
             </Card>
 
-            {/* Chat Model Settings */}
+            {/* Credits Management */}
             <Card className="shadow-sm">
               <CardHeader>
                 <div className="flex items-center space-x-2">
-                  <BrainCircuit className="w-5 h-5 text-gray-500" />
-                  <h2 className="text-xl font-semibold">Chat Model Preferences</h2>
+                  <Bell className="w-5 h-5 text-gray-500" />
+                  <h2 className="text-xl font-semibold">Credits Management</h2>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">
-                    Default Chat Model
+                    Available Credits
                   </label>
-                  <Select 
-                    value={userData.chatModel} 
-                    onValueChange={(value) => setUserData(prev => ({ ...prev, chatModel: value }))}
-                  >
-                    <SelectTrigger className="border-gray-200 focus:ring-2 focus:ring-red-500">
-                      <SelectValue placeholder="Select a model" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="gpt-3.5">GPT-3.5</SelectItem>
-                      <SelectItem value="gpt-4">GPT-4</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Input 
+                    value={userData.credits.toString()}
+                    readOnly
+                    className="bg-gray-50 border-gray-200"
+                  />
+                  <p className="text-sm text-gray-500 mt-2">
+                    Credits are used for processing and API access.
+                  </p>
                 </div>
               </CardContent>
             </Card>
