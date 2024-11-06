@@ -1,18 +1,54 @@
 "use client"
 
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
+
 import Link from 'next/link';
-import { Check } from 'lucide-react';
+import {  
+  FileText, 
+  ArrowRight, 
+  ChevronDown, 
+  ChevronRight, 
+  Code, 
+  FileJson, 
+  Book, 
+  Zap,
+  LucideIcon 
+} from 'lucide-react';
 
+// Types
+interface FeatureCardProps {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+}
 
-const Page = () => {
-  const [isTop, setIsTop] = useState(true);
+interface Feature {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+}
 
+// Components
+const FeatureCard: React.FC<FeatureCardProps> = ({ icon: Icon, title, description }) => (
+  <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+    <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center mb-4">
+      <Icon className="text-white" size={24} />
+    </div>
+    <h3 className="text-xl font-semibold mb-2">{title}</h3>
+    <p className="text-gray-600">{description}</p>
+  </div>
+);
+
+const Page: React.FC = () => {
+  
+  const [, setIsAtTop] = useState<boolean>(true);
+  const [isPastHero, setIsPastHero] = useState<boolean>(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsTop(window.scrollY === 0);
+    const handleScroll = (): void => {
+      const heroHeight = window.innerHeight;
+      setIsAtTop(window.scrollY === 0);
+      setIsPastHero(window.scrollY > heroHeight);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -21,136 +57,308 @@ const Page = () => {
     };
   }, []);
 
+  const scrollToFeatures = () => {
+    const featuresSection = document.querySelector('#features');
+    if (featuresSection) {
+      const offset = -20; // Increase this value to scroll further down
+      const elementPosition = featuresSection.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+      
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
 
+  const features: Feature[] = [
+    {
+      icon: Code,
+      title: "Perfect Markdown",
+      description: "Convert PDFs to clean, properly formatted Markdown with accurate headers, lists, and code blocks."
+    },
+    {
+      icon: FileJson,
+      title: "Structure Preserved",
+      description: "Maintain document structure including tables, images, and complex formatting."
+    },
+    {
+      icon: Book,
+      title: "Multiple Formats",
+      description: "Support for academic papers, documentation, books, and other complex documents."
+    },
+    {
+      icon: Zap,
+      title: "Lightning Fast",
+      description: "Process documents quickly with our optimized conversion pipeline."
+    }
+  ];
+
+  const renderFloatingElements = (): JSX.Element => (
+    <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 opacity-20">
+        <div className="h-full w-full bg-[linear-gradient(transparent_1px,transparent_1px),linear-gradient(90deg,#888_1px,transparent_1px)] bg-[size:30px_30px] [animation:grid_20s_linear_infinite]" />
+      </div>
+      
+      {[
+        { top: '25%', left: '25%', animation: 'float-slow', color: 'orange' },
+        { top: '33%', right: '25%', animation: 'float-slower', color: 'blue' },
+        { bottom: '25%', left: '33%', animation: 'float', color: 'purple' }
+      ].map((element, index) => (
+        <div
+          key={index}
+          className={`absolute ${element.top} ${element.left} ${element.right} animate-${element.animation}`}
+        >
+          <div className={`w-12 h-16 bg-gradient-to-br from-${element.color}-500/20 to-${element.color === 'orange' ? 'red' : 'purple'}-500/20 rounded-lg backdrop-blur-sm`} />
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <div className="relative">
       {/* Header */}
-      <header className={`fixed top-0 left-0 right-0 flex justify-between items-center p-4 z-50 transition-colors duration-300 ${isTop ? 'bg-transparent text-white' : 'bg-white text-black backdrop-filter backdrop-blur-md'}`}>
+      <header 
+        className={`
+          fixed top-0 left-0 right-0 
+          flex justify-between items-center p-4 
+          z-50 transition-all duration-300
+          ${isPastHero 
+            ? 'bg-white/70 text-black' 
+            : 'bg-transparent text-white'}
+        `}
+      >
         <div className="flex items-center space-x-2">
-          <Image src="/images/logo.svg" alt="Logo" width={28} height={28} />
+          <img src="/images/logo.svg" className="w-8 h-8 rounded-lg" alt="Logo" />
           <span className="font-semibold text-base">PDF2LLM.AI</span>
         </div>
-        <div className="flex space-x-3">
-          <Link href="/sign-in" className="text-sm font-semibold hover:text-gray-300 transition-colors">
+        <nav className="flex items-center space-x-6">
+          <Link href="/pricing" className="text-sm font-medium hover:text-gray-300 transition-colors">
+            Pricing
+          </Link>
+          <Link href="/docs" className="text-sm font-medium hover:text-gray-300 transition-colors">
+            Documentation
+          </Link>
+          <Link href="/sign-in" className="text-sm font-medium hover:text-gray-300 transition-colors">
             Sign In
           </Link>
-        </div>
+          <Link 
+            href="/sign-up" 
+            className={`
+              px-4 py-2 rounded-lg text-sm font-medium transition-all
+              ${isPastHero 
+                ? 'bg-gray-900 text-white hover:bg-gray-800'
+                : 'bg-white text-gray-900 hover:bg-gray-100'}
+            `}
+          >
+            Get Started
+          </Link>
+        </nav>
       </header>
 
-      {/* Main Content */}
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden" style={{ paddingTop: '112px' }}>
+      {/* Hero Section */}
+      <section className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-gray-900 to-black" />
         
-        <div className="absolute top-20 left-10 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl" />
-        <div className="absolute top-1/3 right-10 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl" />
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-80 h-80 bg-red-500/10 rounded-full blur-3xl" />
+        {renderFloatingElements()}
 
-        <div className="text-center mb-32 relative z-10">
-            <h1 className="text-white text-5xl font-semibold mb-4 drop-shadow-2xl">
-                Transform PDFs into Precise Markdown.
-            </h1>
-            <p className="text-gray-300 text-lg mb-8">
-                Experience the world&apos;s most accurate PDF to Markdown<br />
-                conversion, powered by ChatGPT.
-            </p>
-            <Link href="/sign-up" className="group relative inline-flex">
-                <span className="animate-border-fast absolute -inset-[3px] rounded-lg bg-gradient-to-r from-[#FF8B64] via-orange-500 to-[#D7524A] opacity-70 blur-sm transition-all duration-200 group-hover:opacity-100"></span>
-                <span className="animate-border-fast absolute -inset-[2px] rounded-lg bg-gradient-to-r from-[#FF8B64] via-orange-500 to-[#D7524A]"></span>
-                <span className="relative inline-flex items-center justify-center px-8 py-3 rounded-lg bg-gray-900 text-white font-medium transition-colors duration-200 group-hover:bg-gray-800">Get Started</span>
-            </Link>
+        {/* Glowing orbs */}
+        <div className="absolute top-20 left-10 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-1/3 right-10 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse-slow" />
+        <div className="absolute bottom-20 left-1/4 w-60 h-60 bg-orange-500/20 rounded-full blur-3xl animate-pulse-slower" />
+
+        {/* Hero Content */}
+        <div className="text-center relative z-10 max-w-5xl mx-auto px-4">
+          <h1 className="text-white text-6xl font-bold mb-6 leading-tight">
+            Transform PDFs into Precise{' '}
+            <span className="bg-gradient-to-r from-orange-400 to-red-500 text-transparent bg-clip-text">
+              Markdown
+            </span>
+          </h1>
+          <p className="text-gray-300 text-xl mb-12 max-w-2xl mx-auto">
+            Experience the world&apos;s most accurate PDF to Markdown conversion, powered by ChatGPT.
+          </p>
+          <div className="flex flex-col items-center space-y-8">
+            <div className="flex items-center justify-center space-x-4">
+              <Link href="/sign-up" className="group relative inline-flex">
+                <span className="animate-border-fast absolute -inset-[3px] rounded-lg bg-gradient-to-r from-[#FF8B64] via-orange-500 to-[#D7524A] opacity-70 blur-sm transition-all duration-200 group-hover:opacity-100" />
+                <span className="animate-border-fast absolute -inset-[2px] rounded-lg bg-gradient-to-r from-[#FF8B64] via-orange-500 to-[#D7524A]" />
+                <span className="relative inline-flex items-center justify-center px-8 py-3 rounded-lg bg-gray-900 text-white font-medium transition-colors duration-200 group-hover:bg-gray-800">
+                  Get Started
+                  <ArrowRight size={18} className="ml-2" />
+                </span>
+              </Link>
+              <Link 
+                href="/docs" 
+                className="inline-flex items-center px-6 py-3 rounded-lg bg-white/10 text-white font-medium hover:bg-white/20 transition-colors"
+              >
+                View Docs
+                <ChevronRight size={18} className="ml-1" />
+              </Link>
+            </div>
+            <button 
+              onClick={scrollToFeatures}
+              className="flex flex-col items-center text-white/80 hover:text-white transition-colors group"
+            >
+              <span className="text-sm mb-2">Learn More</span>
+              <ChevronDown className="w-6 h-6 animate-bounce" />
+            </button>
+          </div>
         </div>
-      </div>
+      </section>
 
       {/* Features Section */}
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-8">
-        <div className="max-w-6xl w-full">
-          <h2 className="text-5xl font-medium text-center mb-20">
-            We convert pdfs <span className="bg-[#FF8B64] px-1">beyond</span><br />
-            text with <span className="font-bold">AI</span>.
-          </h2>
+      <section id="features" className="bg-gray-50 py-24">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">
+              Convert PDFs beyond expectations
+            </h2>
+            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+              Our AI-powered conversion maintains perfect fidelity while transforming complex PDFs into clean, structured Markdown.
+            </p>
+          </div>
 
-          <div className="flex justify-between items-center gap-12">
-            <div className="flex-1">
-              <div className="bg-gray-100 rounded-lg p-8 shadow-lg">
-                <div className="space-y-2 mb-6">
-                  <div className="h-2 bg-gray-300 rounded w-3/4"></div>
-                  <div className="h-2 bg-gray-300 rounded w-full"></div>
-                  <div className="h-2 bg-gray-300 rounded w-2/3"></div>
-                </div>
-                <div className="border border-gray-200 rounded p-4">
-                  <div className="flex h-32 gap-2">
-                    <div className="w-1/4 bg-green-400 rounded-t self-end h-1/2"></div>
-                    <div className="w-1/4 bg-[#D7524A] rounded-t self-end h-2/3"></div>
-                    <div className="w-1/4 bg-blue-400 rounded-t self-end h-full"></div>
-                    <div className="w-1/4 bg-purple-400 rounded-t self-end h-3/4"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="w-24 h-px bg-gray-300 relative">
-              <div className="absolute -right-2 -top-1 w-3 h-3 border-t-2 border-r-2 border-gray-300 transform rotate-45"></div>
-            </div>
-
-            <div className="flex-1">
-              <div className="bg-gray-900 rounded-lg p-8 space-y-8 shadow-lg border border-[#D7524A]">
-                <div className="flex items-center justify-between text-white">
-                  <span>Text converted:</span>
-                  <Check className="text-green-400" size={24} />
-                </div>
-                <div className="flex items-center justify-between text-white">
-                  <span>Charts converted</span>
-                  <Check className="text-green-400" size={24} />
-                </div>
-                <div className="flex items-center justify-between text-white">
-                  <span>Images Described</span>
-                  <Check className="text-green-400" size={24} />
-                </div>
-              </div>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <FeatureCard key={index} {...feature} />
+            ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* API Section */}
-      <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-8">
-        <div className="max-w-6xl w-full space-y-8">
-          <h2 className="text-white text-5xl font-medium text-center mb-16">
-            Use our API to convert any amount of pages
-          </h2>
+      {/* How it Works Section */}
+      <section className="bg-white py-24">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">How It Works</h2>
+            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+              Three simple steps to convert your PDFs into perfect Markdown
+            </p>
+          </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-900 rounded-lg p-8 border border-gray-800">
-              <div className="space-y-4">
-                <p className="text-white text-lg">Loading pdfs</p>
-                <div className="relative h-2 bg-gray-800 rounded-full overflow-hidden">
-                  <div className="absolute top-0 left-0 h-full w-full bg-gradient-to-r from-[#D7524A] to-[#D7524A] rounded-full transform transition-transform duration-1000 animate-progress"></div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {[
+              {
+                icon: FileText,
+                title: "1. Upload PDF",
+                description: "Upload your PDF through our interface or API"
+              },
+              {
+                icon: Zap,
+                title: "2. AI Processing",
+                description: "Our AI analyzes and converts your document"
+              },
+              {
+                icon: Code,
+                title: "3. Get Markdown",
+                description: "Download perfectly formatted Markdown"
+              }
+            ].map((step, index) => (
+              <div key={index} className="text-center">
+                <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-6">
+                  <step.icon className="text-white" size={32} />
                 </div>
-                <p className="text-white text-right">99%</p>
+                <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
+                <p className="text-gray-600">{step.description}</p>
               </div>
-            </div>
+            ))}
+          </div>
 
-            <div className="bg-gray-900 rounded-lg p-8 border border-gray-800">
-              <h3 className="text-white text-6xl font-bold">
-                1k pages +<br />limits
-              </h3>
-            </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="bg-gray-900 py-24">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl p-12 text-center">
+            <h2 className="text-4xl font-bold text-white mb-6">
+              Ready to transform your PDFs?
+            </h2>
+            <p className="text-white/90 text-lg mb-8 max-w-2xl mx-auto">
+              Join thousands of developers who trust our service for their PDF to Markdown conversion needs.
+            </p>
+            <Link 
+              href="/sign-up" 
+              className="inline-flex items-center px-8 py-3 rounded-lg bg-white text-gray-900 font-medium hover:bg-gray-100 transition-colors"
+            >
+              Get Started for Free
+              <ArrowRight size={18} className="ml-2" />
+            </Link>
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12 border-t border-gray-800">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <img src="/images/logo.svg" className="w-8 h-8 rounded-lg" alt="Logo" />
+                <span className="font-semibold text-lg">PDF2LLM.AI</span>
+              </div>
+              <p className="text-gray-400">
+                The most accurate PDF to Markdown conversion powered by AI.
+              </p>
+            </div>
+            {[
+              {
+                title: "Product",
+                links: [
+                  { href: "/features", text: "Features" },
+                  { href: "/pricing", text: "Pricing" },
+                  { href: "/enterprise", text: "Enterprise" }
+                ]
+              },
+              {
+                title: "Resources",
+                links: [
+                  { href: "/docs", text: "Documentation" },
+                  { href: "/api", text: "API Reference" },
+                  { href: "/blog", text: "Blog" }
+                ]
+              },
+              {
+                title: "Company",
+                links: [
+                  { href: "/about", text: "About" },
+                  { href: "/contact", text: "Contact" },
+                  { href: "/legal", text: "Legal" }
+                ]
+              }
+            ].map((section, index) => (
+              <div key={index}>
+                <h3 className="font-semibold mb-4">{section.title}</h3>
+                <ul className="space-y-2">
+                  {section.links.map((link, linkIndex) => (
+                    <li key={linkIndex}>
+                      <Link 
+                        href={link.href} 
+                        className="text-gray-400 hover:text-white"
+                      >
+                        {link.text}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+            <p>&copy; {new Date().getFullYear()} PDF2LLM.AI. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
 
+// Styles
 const styles = `
 @keyframes progress {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(0); }
-}
-
-.animate-progress {
-  animation: progress 2s ease-in-out infinite;
 }
 
 @keyframes convert {
@@ -158,18 +366,203 @@ const styles = `
   50% { opacity: 1; transform: scale(1); }
 }
 
-.convert-animation {
-  animation: convert 3s ease-in-out infinite;
-}
-
 @keyframes border-move {
   0% { background-position: 0% 50%; }
   100% { background-position: 100% 50%; }
 }
 
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes grid {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(30px); }
+}
+
+@keyframes pulse-custom {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
+/* Hide Scrollbar */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Enable smooth scrolling and hide scrollbar */
+* {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+  scroll-behavior: smooth;
+}
+
+.animate-progress {
+  animation: progress 2s ease-in-out infinite;
+}
+
+.animate-convert {
+  animation: convert 3s ease-in-out infinite;
+}
+
 .animate-border-fast {
   background-size: 200% 200%;
   animation: border-move 1s linear infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-float-slower {
+  animation: float 5s ease-in-out infinite;
+}
+
+.animate-grid {
+  animation: grid 20s linear infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse-custom 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-pulse-slower {
+  animation: pulse-custom 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Bounce Animation for Learn More */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 2s infinite;
+}
+
+/* Hover Effects */
+.hover-lift {
+  transition: transform 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* Gradient Text */
+.gradient-text {
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Glass Effect */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Custom Button States */
+.btn-primary {
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Card Hover Effects */
+.card-hover {
+  transition: all 0.3s ease-in-out;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Background Patterns */
+.bg-pattern {
+  background-image: 
+    linear-gradient(rgba(255,255,255,.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.2) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Responsive Design Helpers */
+@media (max-width: 768px) {
+  .mobile-padding {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .mobile-text-center {
+    text-align: center;
+  }
+  
+  .mobile-stack {
+    flex-direction: column;
+  }
+
+  .mobile-hidden {
+    display: none;
+  }
+}
+
+/* Focus States */
+.focus-ring {
+  outline: none;
+  ring: 2px;
+  ring-offset: 2px;
+  ring-opacity: 0.5;
+}
+
+/* Learn More Button Hover Effect */
+.learn-more-btn {
+  transition: all 0.3s ease-in-out;
+}
+
+.learn-more-btn:hover .chevron-down {
+  transform: translateY(4px);
+}
+  .feature-icon-container {
+  transition: all 0.3s ease-in-out;
+}
+
+.feature-icon-container:hover {
+  background: linear-gradient(135deg, #FF8B64 0%, #FF7B54 100%);
+}
+
+.feature-icon-container:hover svg {
+  color: white;
+}
+
+/* Improved Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 `;
 

@@ -38,6 +38,7 @@ interface PDFFile {
   isProcessing: boolean;
   pages: AnalyzedPage[];
   userId?: string;
+  error?: boolean;
 }
 
 interface AnalyzedPage {
@@ -57,7 +58,7 @@ const PDFAnalyzerContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialPdfId = searchParams.get('pdf');
-  
+  const [, setInitialLoadComplete] = useState(false);
   const [pdfFiles, setPdfFiles] = useState<PDFFile[]>([]);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(initialPdfId);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -65,9 +66,37 @@ const PDFAnalyzerContent = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [processingQueue, setProcessingQueue] = useState<{file: File, pdfFile: PDFFile}[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const gradientButtonStyle = "bg-gradient-to-r from-[#D7524A] to-[#E2673F] text-white hover:opacity-90";
+
+  // Process queue effect
+  useEffect(() => {
+    const processQueue = async () => {
+      if (processingQueue.length > 0 && !isProcessing) {
+        setIsProcessing(true);
+        const { file, pdfFile } = processingQueue[0];
+        
+        try {
+          await handleProcessing(pdfFile, file);
+          setProcessingQueue(prev => prev.slice(1));
+        } catch (error) {
+          console.error('Error processing PDF:', error);
+          setPdfFiles(prev => prev.map(pdf => 
+            pdf.id === pdfFile.id ? { ...pdf, isProcessing: false, error: true } : pdf
+          ));
+          setProcessingQueue(prev => prev.slice(1));
+        } finally {
+          setIsProcessing(false);
+        }
+      }
+    };
+
+    processQueue();
+  }, [processingQueue, isProcessing]);
 
   const updateSelectedFile = (pdfId: string | null) => {
     setSelectedFileId(pdfId);
@@ -92,12 +121,14 @@ const PDFAnalyzerContent = () => {
       } else {
         console.log('User not authenticated.');
         setPdfFiles([]);
+        setSelectedFileId(null);
       }
       setIsLoading(false);
+      setInitialLoadComplete(true);
     });
 
     return () => unsubscribe();
-  }, [initialPdfId]);
+  }, []);
 
   const loadUserPDFs = async (user: User) => {
     try {
@@ -136,31 +167,6 @@ const PDFAnalyzerContent = () => {
     }
   };
 
-  const savePDFToFirebase = async (pdfFile: PDFFile, analyzedPages: AnalyzedPage[]) => {
-    if (!user) return;
-  
-    try {
-      console.log('Saving PDF to Firebase:', pdfFile.name);
-      const pdfData: FirestorePDF = {
-        id: pdfFile.id,
-        name: pdfFile.name,
-        userId: user.uid,
-        pages: analyzedPages,
-        createdAt: Date.now()
-      };
-      
-      const docRef = await addDoc(collection(db, 'pdfs'), pdfData);
-      console.log('PDF saved with Firestore ID:', docRef.id);
-      
-      setPdfFiles(prev => prev.map(pdf => 
-        pdf.id === pdfFile.id ? { ...pdf, firestoreId: docRef.id } : pdf
-      ));
-    } catch (error) {
-      console.error('Error saving PDF:', error);
-      throw new Error('Failed to save PDF');
-    }
-  };
-
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     if (!user) {
       setErrorMessage('Please sign in to upload PDFs');
@@ -176,30 +182,23 @@ const PDFAnalyzerContent = () => {
           return {
             id,
             name: file.name,
-            isProcessing: false,
+            isProcessing: true,
             pages: []
           };
         });
   
         setPdfFiles(prev => [...prev, ...formattedPDFs]);
-        setErrorMessage(null);
+        
+        setProcessingQueue(prev => [
+          ...prev,
+          ...formattedPDFs.map((pdf, index) => ({
+            file: newPDFs[index],
+            pdfFile: pdf
+          }))
+        ]);
   
         if (!selectedFileId) {
           updateSelectedFile(formattedPDFs[0].id);
-        }
-  
-        for (let i = 0; i < formattedPDFs.length; i++) {
-          try {
-            console.log(`Uploading PDF: ${formattedPDFs[i].name}`);
-            await handleProcessing(formattedPDFs[i], newPDFs[i]);
-          } catch (error) {
-            console.error(`Error processing PDF ${formattedPDFs[i].name}:`, error);
-            setPdfFiles(prev => prev.map(pdf => 
-              pdf.id === formattedPDFs[i].id 
-                ? { ...pdf, isProcessing: false, error: true } 
-                : pdf
-            ));
-          }
         }
   
         if (fileInputRef.current) {
@@ -212,34 +211,24 @@ const PDFAnalyzerContent = () => {
   };
 
   const handleProcessing = async (pdfFile: PDFFile, file: File) => {
-    // Update processing state for this specific PDF
-    setPdfFiles(prev => prev.map(pdf => 
-      pdf.id === pdfFile.id ? { ...pdf, isProcessing: true } : pdf
-    ));
-  
     try {
       console.log(`Starting processing for PDF: ${pdfFile.name}`);
       const arrayBuffer = await file.arrayBuffer();
       const pdfDoc = await PDFDocument.load(arrayBuffer);
       const numPages = pdfDoc.getPageCount();
-      console.log(`PDF loaded with ${numPages} pages.`);
-  
+      
       const formData = new FormData();
       formData.append('file', file);
   
-      console.log('Uploading PDF for analysis...');
       const response = await axios.post('/api/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      console.log('PDF uploaded, received response:', response.data);
   
       const analyzedPages = await Promise.all(
         Array.from({ length: numPages }, async (_, i) => {
-          console.log(`Analyzing page ${i + 1}...`);
           const analysisResponse = await axios.post('/api/analyze-image', {
             image: response.data.images[i].image
           });
-          console.log(`Page ${i + 1} analysis complete.`);
           return {
             page: i + 1,
             description: analysisResponse.data.analyzedImage.description
@@ -247,22 +236,43 @@ const PDFAnalyzerContent = () => {
         })
       );
   
-      console.log('All pages analyzed:', analyzedPages);
-      await savePDFToFirebase(pdfFile, analyzedPages);
+      const firestoreId = await savePDFToFirebase(pdfFile, analyzedPages);
   
-      // Update the state with the processed PDF while preserving other PDFs
       setPdfFiles(prev => prev.map(pdf => 
         pdf.id === pdfFile.id ? { 
           ...pdf, 
           isProcessing: false, 
           pages: analyzedPages,
+          firestoreId,
           error: false
         } : pdf
       ));
   
     } catch (error) {
       console.error('Error processing PDF:', error);
-      throw error; // Let the parent handler deal with the error
+      throw error;
+    }
+  };
+
+  const savePDFToFirebase = async (pdfFile: PDFFile, analyzedPages: AnalyzedPage[]): Promise<string> => {
+    if (!user) throw new Error('User not authenticated');
+  
+    try {
+      console.log('Saving PDF to Firebase:', pdfFile.name);
+      const pdfData: FirestorePDF = {
+        id: pdfFile.id,
+        name: pdfFile.name,
+        userId: user.uid,
+        pages: analyzedPages,
+        createdAt: Date.now()
+      };
+      
+      const docRef = await addDoc(collection(db, 'pdfs'), pdfData);
+      console.log('PDF saved with Firestore ID:', docRef.id);
+      return docRef.id;
+    } catch (error) {
+      console.error('Error saving PDF:', error);
+      throw new Error('Failed to save PDF');
     }
   };
 
@@ -293,7 +303,6 @@ const PDFAnalyzerContent = () => {
     }
   };
 
-  const [isClicked, setIsClicked] = useState(false);
   const handleCopy = async (text: string) => {
     try {
       console.log('Copying text to clipboard...');
@@ -360,7 +369,6 @@ const PDFAnalyzerContent = () => {
               </Link>
             </div>
           </div>
-          {/* Settings at bottom */}
           <div className="p-4 border-t border-gray-200">
             <Link href="/settings" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95 flex items-center gap-2">
               <Settings className="h-4 w-4" />
@@ -499,14 +507,14 @@ const PDFAnalyzerContent = () => {
                           </div>
                         </div>
                         <div className="flex space-x-2">
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          className={`h-8 w-8 ${isClicked ? 'bg-green-500 hover:bg-green-500' : ''}`} // Apply green background if clicked, overriding hover
-                          onClick={() => handleCopy(page.description)}
-                        >
-                          <FiCopy className="h-4 w-4 text-gray-600" />
-                        </Button>
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className={`h-8 w-8 ${isClicked ? 'bg-green-500 hover:bg-green-500' : ''}`}
+                            onClick={() => handleCopy(page.description)}
+                          >
+                            <FiCopy className="h-4 w-4 text-gray-600" />
+                          </Button>
                           
                           <Button 
                             size="icon" 
