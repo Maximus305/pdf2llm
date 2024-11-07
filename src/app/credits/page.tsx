@@ -2,11 +2,11 @@
 
 import React, { useState } from 'react';
 
-import { File, Check, Info, Settings } from 'lucide-react'; // Use File instead of FileText
-import Link from 'next/link';
+import { File, Check, Info } from 'lucide-react'; // Use File instead of FileText
+
 
 export default function CreditsPage() {
-  const gradientButtonStyle = "bg-gradient-to-r from-[#D7524A] to-[#E2673F] text-white hover:opacity-90";
+
   const [, setCurrentPlan] = useState<string>('Free Plan');
   const [showCosts, setShowCosts] = useState<boolean>(false);
   

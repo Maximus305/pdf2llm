@@ -1,9 +1,5 @@
 import React from 'react';
-import Link from 'next/link';
 
-import {Settings } from 'lucide-react';
-
-const gradientButtonStyle = "bg-gradient-to-r from-[#D7524A] to-[#E2673F] text-white hover:opacity-90";
 
 const UnderConstructionPage = () => {
   return (

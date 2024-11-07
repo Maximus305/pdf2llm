@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, ChangeEvent, useEffect, Suspense } from 'react';
-import { Search, Plus, X, Settings } from 'lucide-react';
+import { Search, Plus, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ReactMarkdown from 'react-markdown';
@@ -10,7 +10,6 @@ import axios from 'axios';
 import { PDFDocument } from 'pdf-lib';
 import { cn } from "@/lib/utils";
 import { FiCopy, FiDownload } from 'react-icons/fi';
-import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
 import { 
