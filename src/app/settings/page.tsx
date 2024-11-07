@@ -4,11 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import Link from 'next/link';
+
 import { auth, db } from '@/lib/firebase';
 import { updateProfile, User, onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { UserIcon, MailIcon, Bell, Loader2, Settings } from 'lucide-react';
+import { UserIcon, MailIcon, Bell, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface CustomToastProps {
@@ -152,36 +152,8 @@ export default function SettingsPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-48 bg-white border-r border-gray-200 flex-shrink-0 flex flex-col">
-        <div className="p-4 flex-grow">
-          <div className="flex items-center space-x-2 mb-6">
-            <img src="/images/logo.svg" alt="Logo" className="h-6 w-6" />
-            <span className="font-semibold">PDF2LLM.AI</span>
-          </div>
-          <div className="space-y-2">
-            <Link href="/dashboard" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
-              Dashboard
-            </Link>
-            <Link href="/api" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
-              API
-            </Link>
-            <Link href="/api-key" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
-              API Key
-            </Link>
-            <Link href="/credits" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
-              Credits
-            </Link>
-          </div>
-        </div>
-        {/* Settings at bottom */}
-        <div className="p-4 border-t border-gray-200">
-          <Link href="/settings" className={`${gradientButtonStyle} rounded px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95 flex items-center gap-2`}>
-            <Settings className="h-4 w-4" />
-            <span>Settings</span>
-          </Link>
-        </div>
-      </div>
+    
+      
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         <div className="max-w-4xl mx-auto p-8">

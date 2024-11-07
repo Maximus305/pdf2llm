@@ -1,7 +1,7 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
 
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {  
   FileText, 
@@ -40,7 +40,6 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon: Icon, title, descriptio
 );
 
 const Page: React.FC = () => {
-  
   const [, setIsAtTop] = useState<boolean>(true);
   const [isPastHero, setIsPastHero] = useState<boolean>(false);
 
@@ -60,7 +59,7 @@ const Page: React.FC = () => {
   const scrollToFeatures = () => {
     const featuresSection = document.querySelector('#features');
     if (featuresSection) {
-      const offset = -20; // Increase this value to scroll further down
+      const offset = -20;
       const elementPosition = featuresSection.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - offset;
       
@@ -97,21 +96,8 @@ const Page: React.FC = () => {
   const renderFloatingElements = (): JSX.Element => (
     <div className="absolute inset-0 overflow-hidden">
       <div className="absolute inset-0 opacity-20">
-        <div className="h-full w-full bg-[linear-gradient(transparent_1px,transparent_1px),linear-gradient(90deg,#888_1px,transparent_1px)] bg-[size:30px_30px] [animation:grid_20s_linear_infinite]" />
+        <div className="h-full w-full bg-[radial-gradient(circle,#888_1px,transparent_1px)] bg-[size:30px_30px]" />
       </div>
-      
-      {[
-        { top: '25%', left: '25%', animation: 'float-slow', color: 'orange' },
-        { top: '33%', right: '25%', animation: 'float-slower', color: 'blue' },
-        { bottom: '25%', left: '33%', animation: 'float', color: 'purple' }
-      ].map((element, index) => (
-        <div
-          key={index}
-          className={`absolute ${element.top} ${element.left} ${element.right} animate-${element.animation}`}
-        >
-          <div className={`w-12 h-16 bg-gradient-to-br from-${element.color}-500/20 to-${element.color === 'orange' ? 'red' : 'purple'}-500/20 rounded-lg backdrop-blur-sm`} />
-        </div>
-      ))}
     </div>
   );
 
@@ -124,12 +110,12 @@ const Page: React.FC = () => {
           flex justify-between items-center p-4 
           z-50 transition-all duration-300
           ${isPastHero 
-            ? 'bg-white/70 text-black' 
+            ? 'bg-white/70 backdrop-blur-sm text-black' 
             : 'bg-transparent text-white'}
         `}
       >
         <div className="flex items-center space-x-2">
-          <img src="/images/logo.svg" className="w-8 h-8 rounded-lg" alt="Logo" />
+          <img src="/images/logo.svg" className="w-6 h-6" alt="Logo" />
           <span className="font-semibold text-base">PDF2LLM.AI</span>
         </div>
         <nav className="flex items-center space-x-6">
@@ -162,12 +148,10 @@ const Page: React.FC = () => {
         
         {renderFloatingElements()}
 
-        {/* Glowing orbs */}
-        <div className="absolute top-20 left-10 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute top-1/3 right-10 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse-slow" />
-        <div className="absolute bottom-20 left-1/4 w-60 h-60 bg-orange-500/20 rounded-full blur-3xl animate-pulse-slower" />
+        <div className="absolute top-20 left-10 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl" />
+        <div className="absolute top-1/3 right-10 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 left-1/4 w-60 h-60 bg-orange-500/20 rounded-full blur-3xl" />
 
-        {/* Hero Content */}
         <div className="text-center relative z-10 max-w-5xl mx-auto px-4">
           <h1 className="text-white text-6xl font-bold mb-6 leading-tight">
             Transform PDFs into Precise{' '}
@@ -264,7 +248,6 @@ const Page: React.FC = () => {
               </div>
             ))}
           </div>
-
         </div>
       </section>
 
@@ -351,39 +334,23 @@ const Page: React.FC = () => {
         </div>
       </footer>
     </div>
+    
   );
 };
 
-// Styles
 const styles = `
-@keyframes progress {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(0); }
-}
-
-@keyframes convert {
-  0%, 100% { opacity: 0; transform: scale(0.8); }
-  50% { opacity: 1; transform: scale(1); }
-}
-
 @keyframes border-move {
   0% { background-position: 0% 50%; }
   100% { background-position: 100% 50%; }
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-20px); }
-}
-
-@keyframes grid {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(30px); }
-}
-
-@keyframes pulse-custom {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.7; }
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 /* Hide Scrollbar */
@@ -398,51 +365,9 @@ const styles = `
   scroll-behavior: smooth;
 }
 
-.animate-progress {
-  animation: progress 2s ease-in-out infinite;
-}
-
-.animate-convert {
-  animation: convert 3s ease-in-out infinite;
-}
-
 .animate-border-fast {
   background-size: 200% 200%;
   animation: border-move 1s linear infinite;
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-.animate-float-slow {
-  animation: float 4s ease-in-out infinite;
-}
-
-.animate-float-slower {
-  animation: float 5s ease-in-out infinite;
-}
-
-.animate-grid {
-  animation: grid 20s linear infinite;
-}
-
-.animate-pulse-slow {
-  animation: pulse-custom 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.animate-pulse-slower {
-  animation: pulse-custom 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Bounce Animation for Learn More */
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
 }
 
 .animate-bounce {
@@ -499,9 +424,7 @@ const styles = `
 
 /* Background Patterns */
 .bg-pattern {
-  background-image: 
-    linear-gradient(rgba(255,255,255,.2) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.2) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(255,255,255,.2) 1px, transparent 1px);
   background-size: 20px 20px;
 }
 
@@ -541,7 +464,8 @@ const styles = `
 .learn-more-btn:hover .chevron-down {
   transform: translateY(4px);
 }
-  .feature-icon-container {
+
+.feature-icon-container {
   transition: all 0.3s ease-in-out;
 }
 

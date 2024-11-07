@@ -347,41 +347,13 @@ const PDFAnalyzerContent = () => {
         "flex min-h-screen max-h-screen overflow-hidden transition-all duration-300 ease-in-out",
         isChatOpen ? "mr-[500px]" : ""
       )}>
-        {/* Sidebar */}
-        <div className="w-48 bg-white border-r border-gray-200 flex-shrink-0 flex flex-col">
-          <div className="p-4 flex-grow">
-            <div className="flex items-center space-x-2 mb-6">
-              <img src="/images/logo.svg" alt="Logo" className="h-6 w-6" />
-              <span className="font-semibold">PDF2LLM.AI</span>
-            </div>
-            <div className="space-y-2">
-              <Link href="/dashboard" className={`${gradientButtonStyle} rounded px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95`}>
-                Dashboard
-              </Link>
-              <Link href="/api" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
-                API
-              </Link>
-              <Link href="/api-key" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
-                API Key
-              </Link>
-              <Link href="/credits" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95">
-                Credits
-              </Link>
-            </div>
-          </div>
-          <div className="p-4 border-t border-gray-200">
-            <Link href="/settings" className="text-gray-600 px-3 py-2 block transition-transform transform hover:scale-105 active:scale-95 flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              <span>Settings</span>
-            </Link>
-          </div>
-        </div>
+       
   
         {/* Main content */}
         <div className="flex-1 flex max-h-screen overflow-hidden">
           {/* PDF List */}
           <div className="w-1/2 p-6 border-r border-gray-200 overflow-y-auto">
-            <h1 className="text-2xl font-semibold mb-6">Your PDFs</h1>
+            <h1 className="text-2xl font-semibold mb-6">Your pdfs</h1>
             <div className="flex items-center justify-between mb-8">
               <div className="relative flex-1 mr-4">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -458,7 +430,7 @@ const PDFAnalyzerContent = () => {
           {/* PDF Preview */}
           <div className="w-1/2 flex flex-col h-screen max-h-screen overflow-hidden">
             {/* Fixed header */}
-            <div className="p-6 bg-white">
+            <div className="p-6 bg-gray-50">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-semibold">
                   {selectedFile ? selectedFile.name : "Select a PDF"}
