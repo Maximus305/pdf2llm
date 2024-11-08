@@ -59,41 +59,45 @@ export default function PricingPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header 
-        className={`
-          fixed top-0 left-0 right-0 
-          flex justify-between items-center p-4 
-          z-50 transition-all duration-300
-          ${isPastHero 
-            ? 'bg-white/70 backdrop-blur-sm text-black shadow-sm' 
-            : 'bg-transparent text-black'}
-        `}
-      >
-        <div className="flex items-center space-x-2">
-          <Link href="/">
-            <div className="flex items-center space-x-2">
-              <img src="/images/logo.svg" className="w-6 h-6" alt="Logo" />
-              <span className="font-semibold text-base">PDF2LLM.AI</span>
-            </div>
-          </Link>
-        </div>
-        <nav className="flex items-center space-x-6">
-          <Link href="/pricing" className="text-sm font-medium hover:text-gray-600 transition-colors">
-            Pricing
-          </Link>
-          <Link href="/docs" className="text-sm font-medium hover:text-gray-600 transition-colors">
-            Documentation
-          </Link>
-          <Link href="/sign-in" className="text-sm font-medium hover:text-gray-600 transition-colors">
-            Sign In
-          </Link>
-          <Link 
-            href="/sign-up" 
-            className="px-4 py-2 rounded-lg text-sm font-medium transition-all bg-gray-900 text-white hover:bg-gray-800"
-          >
-            Get Started
-          </Link>
-        </nav>
-      </header>
+  className={`
+    fixed top-0 left-0 right-0 
+    flex justify-between items-center p-4 
+    z-50 transition-all duration-300
+    ${isPastHero 
+      ? 'bg-white/80 backdrop-blur-md border-b border-gray-200 dark:bg-gray-900/80 dark:border-gray-800' 
+      : 'bg-transparent'
+    }
+  `}
+>
+  <div className="flex items-center space-x-2">
+    <Link href="/">
+      <div className="flex items-center space-x-2">
+        <img src="/images/logo.svg" className="w-6 h-6" alt="Logo" />
+        <span className="font-semibold text-base">PDF2LLM.AI</span>
+      </div>
+    </Link>
+  </div>
+  <nav className="flex items-center space-x-6">
+    <Link href="/" className="text-sm font-medium hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+      Home
+    </Link>
+    <Link href="/pricing" className="text-sm font-medium text-orange-500">
+      Pricing
+    </Link>
+    <Link href="/docs" className="text-sm font-medium hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+      Documentation
+    </Link>
+    <Link href="/sign-in" className="text-sm font-medium hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+      Sign In
+    </Link>
+    <Link 
+      href="/sign-up" 
+      className="px-4 py-2 rounded-lg text-sm font-medium transition-all bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+    >
+      Get Started
+    </Link>
+  </nav>
+</header>
 
       {/* Main Content */}
       <div className="pt-24 pb-12 px-4">
