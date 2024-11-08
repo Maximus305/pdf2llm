@@ -1,6 +1,5 @@
 "use client"
 
-
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {  
@@ -20,24 +19,19 @@ interface FeatureCardProps {
   icon: LucideIcon;
   title: string;
   description: string;
+  gradient: string;
+  delay: number;
 }
 
 interface Feature {
   icon: LucideIcon;
   title: string;
   description: string;
+  gradient: string;
+  delay: number;
 }
 
-// Components
-const FeatureCard: React.FC<FeatureCardProps> = ({ icon: Icon, title, description }) => (
-  <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-    <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center mb-4">
-      <Icon className="text-white" size={24} />
-    </div>
-    <h3 className="text-xl font-semibold mb-2">{title}</h3>
-    <p className="text-gray-600">{description}</p>
-  </div>
-);
+
 
 const Page: React.FC = () => {
   const [, setIsAtTop] = useState<boolean>(true);
@@ -74,22 +68,30 @@ const Page: React.FC = () => {
     {
       icon: Code,
       title: "Perfect Markdown",
-      description: "Convert PDFs to clean, properly formatted Markdown with accurate headers, lists, and code blocks."
+      description: "Convert PDFs to clean, properly formatted Markdown with accurate headers, lists, and code blocks.",
+      gradient: "bg-gradient-to-br from-blue-500 to-indigo-600",
+      delay: 0
     },
     {
       icon: FileJson,
       title: "Structure Preserved",
-      description: "Maintain document structure including tables, images, and complex formatting."
+      description: "Maintain document structure including tables, images, and complex formatting.",
+      gradient: "bg-gradient-to-br from-purple-500 to-pink-600",
+      delay: 100
     },
     {
       icon: Book,
       title: "Multiple Formats",
-      description: "Support for academic papers, documentation, books, and other complex documents."
+      description: "Support for academic papers, documentation, books, and other complex documents.",
+      gradient: "bg-gradient-to-br from-orange-500 to-red-600",
+      delay: 200
     },
     {
       icon: Zap,
       title: "Lightning Fast",
-      description: "Process documents quickly with our optimized conversion pipeline."
+      description: "Process documents quickly with our optimized conversion pipeline.",
+      gradient: "bg-gradient-to-br from-green-500 to-emerald-600",
+      delay: 300
     }
   ];
 
@@ -110,7 +112,7 @@ const Page: React.FC = () => {
           flex justify-between items-center p-4 
           z-50 transition-all duration-300
           ${isPastHero 
-            ? 'bg-white/70 backdrop-blur-sm text-black' 
+            ? 'bg-transparent text-black' 
             : 'bg-transparent text-white'}
         `}
       >
@@ -164,10 +166,10 @@ const Page: React.FC = () => {
           </p>
           <div className="flex flex-col items-center space-y-8">
             <div className="flex items-center justify-center space-x-4">
-              <Link href="/sign-up" className="group relative inline-flex">
+            <Link href="/sign-up" className="group relative inline-flex">
                 <span className="animate-border-fast absolute -inset-[3px] rounded-lg bg-gradient-to-r from-[#FF8B64] via-orange-500 to-[#D7524A] opacity-70 blur-sm transition-all duration-200 group-hover:opacity-100" />
                 <span className="animate-border-fast absolute -inset-[2px] rounded-lg bg-gradient-to-r from-[#FF8B64] via-orange-500 to-[#D7524A]" />
-                <span className="relative inline-flex items-center justify-center px-8 py-3 rounded-lg bg-gray-900 text-white font-medium transition-colors duration-200 group-hover:bg-gray-800">
+                <span className="relative inline-flex items-center justify-center px-8 py-3 rounded-lg bg-gray-900 text-white font-medium transition-colors duration-200 group-hover:bg-gradient-to-r group-hover:from-orange-400 group-hover:via-orange-500 group-hover:to-red-500">
                   Get Started
                   <ArrowRight size={18} className="ml-2" />
                 </span>
@@ -191,25 +193,36 @@ const Page: React.FC = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="bg-gray-50 py-24">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">
-              Convert PDFs beyond expectations
-            </h2>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-              Our AI-powered conversion maintains perfect fidelity while transforming complex PDFs into clean, structured Markdown.
-            </p>
-          </div>
+      {/* Enhanced Features Section */}
+      <section id="features" className="py-24 bg-gray-100 dark:bg-gray-800">
+  <div className="max-w-7xl mx-auto px-4">
+    <div className="text-center mb-16">
+      <span className="text-orange-600 dark:text-orange-500 font-semibold uppercase mb-4 text-sm">
+        Features
+      </span>
+      <h2 className="text-4xl lg:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
+        Convert PDFs beyond expectations
+      </h2>
+      <p className="text-gray-700 dark:text-gray-300 text-lg max-w-2xl mx-auto">
+        Our AI-powered conversion maintains perfect fidelity while transforming complex PDFs into clean, structured Markdown.
+      </p>
+    </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <FeatureCard key={index} {...feature} />
-            ))}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-10">
+      {features.map((feature, index) => (
+        <div key={index} className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-lg flex flex-col items-center justify-center h-64 w-64">
+          <div className="flex items-center justify-center mb-4">
+            <feature.icon className="text-gray-900 dark:text-white" size={32} />
           </div>
+          <h3 className="text-xl font-semibold mb-2 text-center text-gray-900 dark:text-white">{feature.title}</h3>
+          <p className="text-gray-600 dark:text-gray-300 text-center">{feature.description}</p>
         </div>
-      </section>
+      ))}
+    </div>
+  </div>
+</section>
+
+      
 
       {/* How it Works Section */}
       <section className="bg-white py-24">
@@ -333,10 +346,12 @@ const Page: React.FC = () => {
           </div>
         </div>
       </footer>
+
+
     </div>
-    
   );
 };
+
 
 const styles = `
 @keyframes border-move {
@@ -495,5 +510,7 @@ if (typeof document !== 'undefined') {
   styleSheet.textContent = styles;
   document.head.appendChild(styleSheet);
 }
+
+
 
 export default Page;

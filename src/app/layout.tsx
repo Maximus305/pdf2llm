@@ -1,12 +1,50 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { getAuth, onAuthStateChanged } from 'firebase/auth'; // Import Firebase auth
 
 import './globals.css';
 
 const Header = () => {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [username, setUsername] = useState(''); // State for username
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Fetch username from Firebase
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Assuming the user's display name is stored in Firebase
+        setUsername(user.displayName || 'User');
+      } else {
+        setUsername('Guest');
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
+
   return (
     <header className="h-14 bg-white border-b border-gray-200 fixed top-0 w-full z-10">
       <div className="h-full w-full px-4 flex items-center justify-between">
@@ -18,27 +56,37 @@ const Header = () => {
           </Link>
         </div>
 
-        {/* Centered navigation */}
-        <nav className="flex items-center space-x-8">
-          <Link 
-            href="/dashboard" 
+        {/* User Account Dropdown */}
+        <div className="relative" ref={dropdownRef}>
+          <button 
+            onClick={toggleDropdown} 
             className="text-gray-600 px-3 py-2 transition-transform transform hover:scale-105 active:scale-95"
           >
-            Dashboard
-          </Link>
-          <Link 
-            href="/api" 
-            className="text-gray-600 px-3 py-2 transition-transform transform hover:scale-105 active:scale-95"
-          >
-            API
-          </Link>
-          <Link 
-            href="/settings" 
-            className="text-gray-600 px-3 py-2 transition-transform transform hover:scale-105 active:scale-95 flex items-center gap-2"
-          >
-           Settings
-          </Link>
-        </nav>
+            {username}
+          </button>
+          {dropdownOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded shadow-lg">
+              <Link 
+                href="/dashboard" 
+                className="block px-4 py-2 text-gray-600 hover:bg-gray-100"
+              >
+                Dashboard
+              </Link>
+              <Link 
+                href="/api" 
+                className="block px-4 py-2 text-gray-600 hover:bg-gray-100"
+              >
+                API
+              </Link>
+              <Link 
+                href="/settings" 
+                className="block px-4 py-2 text-gray-600 hover:bg-gray-100"
+              >
+                Settings
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

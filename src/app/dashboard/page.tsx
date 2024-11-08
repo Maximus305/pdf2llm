@@ -343,15 +343,15 @@ const PDFAnalyzerContent = () => {
   return (
     <>
       <div className={cn(
-        "flex min-h-screen max-h-screen overflow-hidden transition-all duration-300 ease-in-out",
+        "flex min-h-screen max-h-screen overflow-hidden transition-all duration-300 ease-in-out bg-white",
         isChatOpen ? "mr-[500px]" : ""
       )}>
        
   
         {/* Main content */}
-        <div className="flex-1 flex max-h-screen overflow-hidden">
+        <div className="flex-1 flex max-h-screen overflow-hidden bg-white">
           {/* PDF List */}
-          <div className="w-1/2 p-6 border-r border-gray-200 overflow-y-auto">
+          <div className="w-1/2 p-6 border-r border-gray-200 overflow-y-auto bg-white">
             <h1 className="text-2xl font-semibold mb-6">Your pdfs</h1>
             <div className="flex items-center justify-between mb-8">
               <div className="relative flex-1 mr-4">
@@ -359,7 +359,7 @@ const PDFAnalyzerContent = () => {
                 <Input 
                   type="text"
                   placeholder="Search for pdf"
-                  className="pl-9 pr-4 h-10 w-full bg-gray-50"
+                  className="pl-9 pr-4 h-10 w-full bg-white"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -383,7 +383,7 @@ const PDFAnalyzerContent = () => {
               {filteredPdfFiles.length > 0 ? filteredPdfFiles.map((pdf) => (
                 <div 
                   key={pdf.id}
-                  className={`flex flex-col items-center cursor-pointer relative p-2 rounded-lg aspect-square 
+                  className={`flex flex-col items-center cursor-pointer relative p-2 rounded-lg aspect-square bg-white
                     ${pdf.id === selectedFileId ? 'bg-gray-100' : ''}`}
                   onClick={() => updateSelectedFile(pdf.id)}
                 >
@@ -427,9 +427,9 @@ const PDFAnalyzerContent = () => {
           </div>
   
           {/* PDF Preview */}
-          <div className="w-1/2 flex flex-col h-screen max-h-screen overflow-hidden">
+          <div className="w-1/2 flex flex-col h-screen max-h-screen overflow-hidden bg-white">
             {/* Fixed header */}
-            <div className="p-6 bg-gray-50">
+            <div className="p-6 bg-white">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-semibold">
                   {selectedFile ? selectedFile.name : "Select a PDF"}
@@ -462,7 +462,7 @@ const PDFAnalyzerContent = () => {
             </div>
   
             {/* Scrollable content */}
-            <div className="flex-1 overflow-y-auto px-6 pb-6">
+            <div className="flex-1 overflow-y-auto px-6 pb-6 bg-white">
               {selectedFile ? (
                 <div className="space-y-4">
                   {selectedFile.pages.map((page, index) => (
