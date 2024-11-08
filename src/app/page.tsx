@@ -14,6 +14,8 @@ import {
   LucideIcon 
 } from 'lucide-react';
 
+// Types
+
 
 interface Feature {
   icon: LucideIcon;
@@ -31,7 +33,7 @@ const Page: React.FC = () => {
 
   useEffect(() => {
     const handleScroll = (): void => {
-      const heroHeight = window.innerHeight;
+      const heroHeight = window.innerHeight * .95; // Adjust the threshold to 80% of the viewport height
       setIsAtTop(window.scrollY === 0);
       setIsPastHero(window.scrollY > heroHeight);
     };

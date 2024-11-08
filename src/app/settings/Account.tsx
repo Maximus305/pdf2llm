@@ -2,8 +2,10 @@
 
 import { LogOut } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { getAuth, onAuthStateChanged, updateProfile, signOut, User } from 'firebase/auth'; // Import User type
-import { useRouter } from 'next/navigation'; // Changed to Next.js router since this is a "use client" component
+import { getAuth, onAuthStateChanged, updateProfile, signOut, User } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 // Custom Toast Component
 const Toast = ({ message, type, onClose }: { message: string; type: 'success' | 'error'; onClose: () => void }) => {
@@ -20,21 +22,39 @@ const Toast = ({ message, type, onClose }: { message: string; type: 'success' | 
 };
 
 export const Account = () => {
-  const router = useRouter(); // Using Next.js router instead
-  const [user, setUser] = useState<User | null>(null); // Use User type from Firebase
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [, setUserData] = useState<{
+    credits: number;
+    usage: number;
+    apiLimits: number;
+    moneyInAccount: number;
+  } | null>(null);
 
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
-      if (currentUser?.displayName) {
-        const [first, last] = currentUser.displayName.split(' ');
-        setFirstName(first || '');
-        setLastName(last || '');
+      if (currentUser) {
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          setUserData(userDoc.data() as {
+            credits: number;
+            usage: number;
+            apiLimits: number;
+            moneyInAccount: number;
+          });
+        }
+        if (currentUser.displayName) {
+          const [first, last] = currentUser.displayName.split(' ');
+          setFirstName(first || '');
+          setLastName(last || '');
+        }
       }
     });
 
@@ -62,7 +82,7 @@ export const Account = () => {
     try {
       await signOut(getAuth());
       setToast({ message: 'Logged out successfully', type: 'success' });
-      router.push('/sign-in'); // Using Next.js router push instead of navigate
+      router.push('/sign-in');
     } catch (error) {
       setToast({ message: 'Failed to log out', type: 'error' });
       console.error('Error logging out:', error);

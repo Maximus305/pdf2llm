@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { FiCopy, FiDownload } from 'react-icons/fi';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
+
 import { 
   onAuthStateChanged, 
   User
