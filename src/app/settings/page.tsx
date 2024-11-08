@@ -8,8 +8,10 @@ import { Limits } from './Limits';
 import { Questions } from './Questions';
 import { Account } from './Account';
 
+type ActiveItemType = 'Account' | 'Plan' | 'Usage' | 'Billing' | 'Limits' | 'Questions';
+
 const SettingsPage = () => {
-  const [activeItem, setActiveItem] = useState('Account');
+  const [activeItem, setActiveItem] = useState<ActiveItemType>('Account');
 
   const getComponent = () => {
     switch (activeItem) {

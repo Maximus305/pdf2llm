@@ -1,13 +1,16 @@
 import { Settings, CreditCard, BarChart2, Shield, User, HelpCircle } from 'lucide-react';
 
+// Define a type for the active items
+type ActiveItemType = 'Account' | 'Plan' | 'Usage' | 'Billing' | 'Limits' | 'Questions';
+
 type MenuItem = {
-  label: string;
+  label: ActiveItemType;
   icon: React.ElementType;
 };
 
 type SidebarProps = {
-  activeItem: string;
-  setActiveItem: (item: string) => void;
+  activeItem: ActiveItemType;
+  setActiveItem: (item: ActiveItemType) => void;
 };
 
 const sidebarItems: MenuItem[] = [

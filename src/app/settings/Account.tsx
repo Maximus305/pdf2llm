@@ -2,7 +2,7 @@
 
 import { LogOut } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { getAuth, onAuthStateChanged, updateProfile, signOut } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, updateProfile, signOut, User } from 'firebase/auth'; // Import User type
 import { useRouter } from 'next/navigation'; // Changed to Next.js router since this is a "use client" component
 
 // Custom Toast Component
@@ -21,7 +21,7 @@ const Toast = ({ message, type, onClose }: { message: string; type: 'success' | 
 
 export const Account = () => {
   const router = useRouter(); // Using Next.js router instead
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null); // Use User type from Firebase
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);

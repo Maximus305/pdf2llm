@@ -14,14 +14,6 @@ import {
   LucideIcon 
 } from 'lucide-react';
 
-// Types
-interface FeatureCardProps {
-  icon: LucideIcon;
-  title: string;
-  description: string;
-  gradient: string;
-  delay: number;
-}
 
 interface Feature {
   icon: LucideIcon;
