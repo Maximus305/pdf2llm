@@ -1,7 +1,8 @@
+// app/settings/page.tsx
 "use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React from 'react';
+import { usePathname } from 'next/navigation';
 import { Sidebar } from './Sidebar';
 import { Plan } from './Plan';
 import { Usage } from './Usage';
@@ -10,19 +11,15 @@ import { Limits } from './Limits';
 import { Questions } from './Questions';
 import { Account } from './Account';
 
-type ActiveItemType = 'Account' | 'Plan' | 'Usage' | 'Billing' | 'Limits' | 'Questions';
-
 const SettingsPage = () => {
-  const [activeItem, setActiveItem] = useState<ActiveItemType>('Account');
-  const router = useRouter();
-
-  const handleSetActiveItem = (item: ActiveItemType) => {
-    setActiveItem(item);
-    router.push(`/settings/${item.toLowerCase()}`);
-  };
+  const pathname = usePathname();
+  
+  // Get the current section from the URL or default to Account
+  const currentSection = pathname === '/settings' ? 'Account' : 
+    (pathname.split('/').pop() || 'Account').replace(/^./, str => str.toUpperCase());
 
   const getComponent = () => {
-    switch (activeItem) {
+    switch (currentSection) {
       case 'Account':
         return <Account />;
       case 'Plan':
@@ -44,7 +41,7 @@ const SettingsPage = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto">
         <div className="flex">
-          <Sidebar activeItem={activeItem} setActiveItem={handleSetActiveItem} />
+          <Sidebar />
           <div className="flex-1 p-8">
             <div className="max-w-3xl mx-auto">
               {getComponent()}

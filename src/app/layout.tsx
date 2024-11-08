@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { getAuth, onAuthStateChanged } from 'firebase/auth'; // Import Firebase auth
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../lib/firebase'; // Import auth from your firebase module
 
 import './globals.css';
 
@@ -14,7 +15,6 @@ const Header = () => {
 
   // Fetch username from Firebase
   useEffect(() => {
-    const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         // Assuming the user's display name is stored in Firebase

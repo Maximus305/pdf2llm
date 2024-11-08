@@ -1,28 +1,34 @@
+// app/settings/Sidebar.tsx
+"use client";
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Settings, CreditCard, BarChart2, Shield, User, HelpCircle } from 'lucide-react';
 
-// Define a type for the active items
 type ActiveItemType = 'Account' | 'Plan' | 'Usage' | 'Billing' | 'Limits' | 'Questions';
 
 type MenuItem = {
   label: ActiveItemType;
   icon: React.ElementType;
-};
-
-type SidebarProps = {
-  activeItem: ActiveItemType;
-  setActiveItem: (item: ActiveItemType) => void;
+  href: string;
 };
 
 const sidebarItems: MenuItem[] = [
-  { label: 'Account', icon: User },
-  { label: 'Plan', icon: Shield },
-  { label: 'Usage', icon: BarChart2 },
-  { label: 'Billing', icon: CreditCard },
-  { label: 'Limits', icon: Settings },
-  { label: 'Questions', icon: HelpCircle },
+  { label: 'Account', icon: User, href: '/settings/account' },
+  { label: 'Plan', icon: Shield, href: '/settings/plan' },
+  { label: 'Usage', icon: BarChart2, href: '/settings/usage' },
+  { label: 'Billing', icon: CreditCard, href: '/settings/billing' },
+  { label: 'Limits', icon: Settings, href: '/settings/limits' },
+  { label: 'Questions', icon: HelpCircle, href: '/settings/questions' },
 ];
 
-export const Sidebar = ({ activeItem, setActiveItem }: SidebarProps) => {
+export const Sidebar = () => {
+  const pathname = usePathname();
+  const currentPath = pathname.split('/').pop();
+  const activeItem = currentPath ? 
+    (currentPath.charAt(0).toUpperCase() + currentPath.slice(1)) as ActiveItemType : 
+    'Account';
+
   return (
     <div className="w-64 min-h-screen">
       <div className="px-3 py-6">
@@ -30,8 +36,8 @@ export const Sidebar = ({ activeItem, setActiveItem }: SidebarProps) => {
           <ul className="space-y-1">
             {sidebarItems.map((item) => (
               <li key={item.label}>
-                <button
-                  onClick={() => setActiveItem(item.label)}
+                <Link
+                  href={item.href}
                   className={`w-full flex items-center px-3 py-2 rounded-md text-sm transition-colors
                     ${activeItem === item.label 
                       ? 'bg-[#D7524A] text-white' 
@@ -41,7 +47,7 @@ export const Sidebar = ({ activeItem, setActiveItem }: SidebarProps) => {
                     ${activeItem === item.label ? 'text-white' : 'text-gray-400'}`} 
                   />
                   {item.label}
-                </button>
+                </Link>
               </li>
             ))}
           </ul>
