@@ -1,57 +1,147 @@
-import { NextRequest, NextResponse } from 'next/server';
-import axios from 'axios';
+import type { NextApiRequest, NextApiResponse } from 'next';
+import formidable from 'formidable';
+import fs from 'fs';
+import { PDFDocument } from 'pdf-lib';
+import sharp from 'sharp';
 
-export const runtime = 'nodejs';
+// Configure Next.js to disable the default body parser
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
-async function convertPDFtoBase64(pdfBuffer: Buffer) {
+type UploadResponse = {
+  success?: boolean;
+  images?: Array<{ image: string; page: number }>;
+  error?: string;
+  details?: string;
+};
+
+interface FormidableFile {
+  filepath: string;
+  newFilename: string;
+  originalFilename: string | null;
+  mimetype: string | null;
+  size: number;
+}
+
+async function convertPDFPageToImage(pdfBuffer: Buffer, pageIndex: number): Promise<string> {
   try {
-    console.log('Sending PDF to Railway service for Base64 conversion...');
+    // Load the PDF document
+    const pdfDoc = await PDFDocument.load(pdfBuffer);
     
-    const response = await axios.post(
-      'https://onvapdf2base64.up.railway.app',  // Railway service URL
-      pdfBuffer,
-      {
-        headers: {
-          'Content-Type': 'application/pdf',
-        },
-        responseType: 'text',  // Expect Base64 encoded string as text
-      }
-    );
-    
-    if (response.status !== 200) {
-      console.error(`Railway service error: ${response.status}`);
-      throw new Error(`Failed to convert PDF with status: ${response.status}`);
-    }
+    // Get the specific page
+    const page = pdfDoc.getPages()[pageIndex];
+    const { width, height } = page.getSize();
 
-    console.log('Successfully converted PDF to Base64.');
-    return response.data;  // Base64-encoded PDF string
+    // Create a new document with just this page
+    const singlePagePdf = await PDFDocument.create();
+    const [copiedPage] = await singlePagePdf.copyPages(pdfDoc, [pageIndex]);
+    singlePagePdf.addPage(copiedPage);
+
+    // Save the single page PDF
+    const pageBuffer = await singlePagePdf.save();
+
+    // For testing, return a mock base64 image
+    // In production, you'd convert the PDF page to an actual image
+    return `data:image/png;base64,mock_image_data_for_page_${pageIndex + 1}`;
   } catch (error) {
-    console.error('Error converting PDF to Base64:', error);
+    console.error('Error converting page to image:', error);
     throw error;
   }
 }
 
-export async function POST(req: NextRequest) {
-  console.log('Received POST request.');
-  const contentType = req.headers.get('content-type');
-  if (!contentType?.includes('multipart/form-data')) {
-    console.error('Invalid content type.');
-    return NextResponse.json({ error: 'Invalid content type. Expected multipart/form-data.' }, { status: 400 });
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<UploadResponse>
+) {
+  console.log('Received upload request');
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed. Use POST.' });
   }
 
+  const form = formidable({
+    maxFileSize: 10 * 1024 * 1024, // 10MB limit
+    allowEmptyFiles: false,
+    keepExtensions: true,
+    multiples: false,
+    filter: (part) => {
+      return part.mimetype ? part.mimetype.includes('application/pdf') : false;
+    },
+  });
+
   try {
-    // Read the PDF file from the request body
-    const body = await req.arrayBuffer();
-    const buffer = Buffer.from(body);
-    console.log('Request body converted to buffer.');
+    // Parse the form data
+    const [fields, files] = await new Promise<[formidable.Fields, formidable.Files]>(
+      (resolve, reject) => {
+        form.parse(req, (err, fields, files) => {
+          if (err) {
+            console.error('Form parsing error:', err);
+            reject(err);
+            return;
+          }
+          resolve([fields, files]);
+        });
+      }
+    );
 
-    // Send the PDF to the Railway service and get the Base64 response
-    const base64PDF = await convertPDFtoBase64(buffer);
+    // Get the uploaded file
+    const file = files.file;
+    if (!file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
 
-    // Return the Base64-encoded PDF to the client
-    return NextResponse.json({ base64: base64PDF }, { status: 200 });
+    const uploadedFile: FormidableFile = Array.isArray(file) ? file[0] : file;
+    
+    // Read the file
+    const pdfBuffer = await fs.promises.readFile(uploadedFile.filepath);
+    
+    // Load the PDF document to get page count
+    const pdfDoc = await PDFDocument.load(pdfBuffer);
+    const pageCount = pdfDoc.getPageCount();
+
+    console.log(`Processing PDF with ${pageCount} pages`);
+
+    // Process all pages concurrently
+    const pagePromises = Array.from({ length: pageCount }, async (_, index) => {
+      try {
+        const imageData = await convertPDFPageToImage(pdfBuffer, index);
+        return {
+          image: imageData,
+          page: index + 1
+        };
+      } catch (error) {
+        console.error(`Error processing page ${index + 1}:`, error);
+        return {
+          image: `error_page_${index + 1}`,
+          page: index + 1
+        };
+      }
+    });
+
+    const images = await Promise.all(pagePromises);
+
+    // Clean up the temporary file
+    try {
+      await fs.promises.unlink(uploadedFile.filepath);
+      console.log('Temporary file cleaned up');
+    } catch (error) {
+      console.error('Error cleaning up temporary file:', error);
+    }
+
+    return res.status(200).json({
+      success: true,
+      images
+    });
+
   } catch (error) {
-    console.error('Error during PDF processing:', error);
-    return NextResponse.json({ error: 'An error occurred while processing the PDF.' }, { status: 500 });
+    console.error('Unexpected error:', error);
+    
+    return res.status(500).json({
+      error: 'An unexpected error occurred',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 }

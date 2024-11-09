@@ -65,15 +65,8 @@ const DocPage: React.FC = () => {
       {/* Main Content */}
       <div className="pt-16 flex min-h-screen">
         {/* Sidebar */}
-        <aside className="w-64 border-r border-gray-200 dark:border-gray-800 fixed h-full bg-white dark:bg-gray-900 overflow-y-auto">
+        <aside className="w-64 fixed h-full dark:bg-gray-900 overflow-y-auto">
           <nav className="p-4 space-y-2">
-            <div className="mb-8">
-              <input
-                type="search"
-                placeholder="Search docs..."
-                className="w-full px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
-              />
-            </div>
             <Link href="#quick-start" className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
               <Zap size={18} />
               <span>Quick Start</span>

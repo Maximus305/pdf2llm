@@ -15,8 +15,6 @@ import {
 } from 'lucide-react';
 
 // Types
-
-
 interface Feature {
   icon: LucideIcon;
   title: string;
@@ -24,8 +22,6 @@ interface Feature {
   gradient: string;
   delay: number;
 }
-
-
 
 const Page: React.FC = () => {
   const [, setIsAtTop] = useState<boolean>(true);
@@ -149,7 +145,7 @@ const Page: React.FC = () => {
         <div className="absolute bottom-20 left-1/4 w-60 h-60 bg-orange-500/20 rounded-full blur-3xl" />
 
         <div className="text-center relative z-10 max-w-5xl mx-auto px-4">
-          <h1 className="text-white text-6xl font-bold mb-6 leading-tight">
+          <h1 className="text-white text-6xl font-bold mb-6 leading-tight animate-[reveal_0.8s_ease-out]">
             Transform PDFs into Precise{' '}
             <span className="bg-gradient-to-r from-orange-400 to-red-500 text-transparent bg-clip-text">
               Markdown
@@ -160,7 +156,7 @@ const Page: React.FC = () => {
           </p>
           <div className="flex flex-col items-center space-y-8">
             <div className="flex items-center justify-center space-x-4">
-            <Link href="/sign-up" className="group relative inline-flex">
+              <Link href="/sign-up" className="group relative inline-flex">
                 <span className="animate-border-fast absolute -inset-[3px] rounded-lg bg-gradient-to-r from-[#FF8B64] via-orange-500 to-[#D7524A] opacity-70 blur-sm transition-all duration-200 group-hover:opacity-100" />
                 <span className="animate-border-fast absolute -inset-[2px] rounded-lg bg-gradient-to-r from-[#FF8B64] via-orange-500 to-[#D7524A]" />
                 <span className="relative inline-flex items-center justify-center px-8 py-3 rounded-lg bg-gray-900 text-white font-medium transition-colors duration-200 group-hover:bg-gradient-to-r group-hover:from-orange-400 group-hover:via-orange-500 group-hover:to-red-500">
@@ -189,34 +185,32 @@ const Page: React.FC = () => {
 
       {/* Enhanced Features Section */}
       <section id="features" className="py-24 bg-gray-100 dark:bg-gray-800">
-  <div className="max-w-7xl mx-auto px-4">
-    <div className="text-center mb-16">
-      <span className="text-orange-600 dark:text-orange-500 font-semibold uppercase mb-4 text-sm">
-        Features
-      </span>
-      <h2 className="text-4xl lg:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
-        Convert PDFs beyond expectations
-      </h2>
-      <p className="text-gray-700 dark:text-gray-300 text-lg max-w-2xl mx-auto">
-        Our AI-powered conversion maintains perfect fidelity while transforming complex PDFs into clean, structured Markdown.
-      </p>
-    </div>
-
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-10">
-      {features.map((feature, index) => (
-        <div key={index} className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-lg flex flex-col items-center justify-center h-64 w-64">
-          <div className="flex items-center justify-center mb-4">
-            <feature.icon className="text-gray-900 dark:text-white" size={32} />
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <span className="text-orange-600 dark:text-orange-500 font-semibold uppercase mb-4 text-sm">
+              Features
+            </span>
+            <h2 className="text-4xl lg:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
+              Convert PDFs beyond expectations
+            </h2>
+            <p className="text-gray-700 dark:text-gray-300 text-lg max-w-2xl mx-auto">
+              Our AI-powered conversion maintains perfect fidelity while transforming complex PDFs into clean, structured Markdown.
+            </p>
           </div>
-          <h3 className="text-xl font-semibold mb-2 text-center text-gray-900 dark:text-white">{feature.title}</h3>
-          <p className="text-gray-600 dark:text-gray-300 text-center">{feature.description}</p>
-        </div>
-      ))}
-    </div>
-  </div>
-</section>
 
-      
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-10">
+            {features.map((feature, index) => (
+              <div key={index} className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-lg flex flex-col items-center justify-center h-64 w-64">
+                <div className="flex items-center justify-center mb-4">
+                  <feature.icon className="text-gray-900 dark:text-white" size={32} />
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-center text-gray-900 dark:text-white">{feature.title}</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-center">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* How it Works Section */}
       <section className="bg-white py-24">
@@ -340,14 +334,55 @@ const Page: React.FC = () => {
           </div>
         </div>
       </footer>
-
-
     </div>
   );
 };
 
-
 const styles = `
+@keyframes reveal {
+  0% {
+    opacity: 0;
+    filter: blur(8px);
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1);
+  }
+}
+
+@keyframes text-scan {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.scan-animation {
+  position: relative;
+}
+
+.scan-animation::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(74, 144, 226, 0.2) 50%,
+    transparent 100%
+  );
+  animation: text-scan 3s linear infinite;
+  background-size: 50% 100%;
+  background-repeat: no-repeat;
+}
+
 @keyframes border-move {
   0% { background-position: 0% 50%; }
   100% { background-position: 100% 50%; }
@@ -497,6 +532,72 @@ const styles = `
     scroll-behavior: auto !important;
   }
 }
+
+/* Add these new animation styles */
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+/* Blueprint grid animation */
+@keyframes grid-fade {
+  0% {
+    opacity: 0;
+    background-size: 15px 15px;
+  }
+  100% {
+    opacity: 0.2;
+    background-size: 20px 20px;
+  }
+}
+
+.bg-[radial-gradient(#4A90E2_1px,transparent_1px)] {
+  animation: grid-fade 1s ease-out forwards;
+}
+
+/* Measurement lines animation */
+@keyframes line-draw {
+  0% {
+    width: 0;
+    opacity: 0;
+  }
+  100% {
+    width: 100%;
+    opacity: 0.4;
+  }
+}
+
+.border-t-2.border-dashed {
+  animation: line-draw 1s ease-out forwards;
+}
+
+/* Blueprint annotation fade in */
+@keyframes annotation-fade {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) rotate(-6deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(-6deg);
+  }
+}
+
+.text-blue-400\/60 {
+  animation: annotation-fade 0.8s ease-out forwards;
+  animation-delay: 1s;
+}
 `;
 
 if (typeof document !== 'undefined') {
@@ -504,7 +605,5 @@ if (typeof document !== 'undefined') {
   styleSheet.textContent = styles;
   document.head.appendChild(styleSheet);
 }
-
-
 
 export default Page;
