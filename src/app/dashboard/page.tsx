@@ -210,49 +210,121 @@ const PDFAnalyzerContent = () => {
     }
   };
 
+ 
+  
   const handleProcessing = async (pdfFile: PDFFile, file: File) => {
     try {
-      console.log(`Starting processing for PDF: ${pdfFile.name}`);
-      const arrayBuffer = await file.arrayBuffer();
-      const pdfDoc = await PDFDocument.load(arrayBuffer);
-      const numPages = pdfDoc.getPageCount();
-      
-      const formData = new FormData();
-      formData.append('file', file);
-  
-      const response = await axios.post('/api/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+      console.log('Starting PDF processing:', {
+        name: file.name,
+        size: file.size,
+        type: file.type
       });
   
-      const analyzedPages = await Promise.all(
-        Array.from({ length: numPages }, async (_, i) => {
-          const analysisResponse = await axios.post('/api/analyze-image', {
-            image: response.data.images[i].image
+      // Initialize processing state
+      setPdfFiles(prev => prev.map(pdf => 
+        pdf.id === pdfFile.id ? { 
+          ...pdf, 
+          isProcessing: true,
+          error: false,
+          pages: [] 
+        } : pdf
+      ));
+  
+      // Create and log FormData
+      const formData = new FormData();
+      formData.append('file', file);
+      console.log('FormData created with file');
+  
+      // Make upload request with detailed error handling
+      const uploadResponse = await axios.post('/api/upload', formData, {
+        headers: { 
+          'Content-Type': 'multipart/form-data'
+        },
+        timeout: 60000,
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total!);
+          console.log(`Upload progress: ${percentCompleted}%`);
+        }
+      }).catch(error => {
+        if (error.response) {
+          // Server responded with error
+          console.error('Server error response:', {
+            status: error.response.status,
+            data: error.response.data
           });
-          return {
-            page: i + 1,
-            description: analysisResponse.data.analyzedImage.description
-          };
-        })
-      );
+        } else if (error.request) {
+          // Request made but no response
+          console.error('No response received:', error.request);
+        } else {
+          // Request setup error
+          console.error('Request setup error:', error.message);
+        }
+        throw error;
+      });
   
-      const firestoreId = await savePDFToFirebase(pdfFile, analyzedPages);
+      console.log('Upload response received:', uploadResponse.data);
   
+      if (!uploadResponse.data?.images || !Array.isArray(uploadResponse.data.images)) {
+        throw new Error('Invalid response format');
+      }
+  
+      // Process single test page
+      const testPage = uploadResponse.data.images[0];
+      try {
+        console.log('Analyzing test page...');
+        const analysisResponse = await axios.post('/api/analyze-image', {
+          image: testPage.image
+        });
+  
+        console.log('Analysis response received:', analysisResponse.data);
+  
+        // Update PDF with test page
+        const analyzedPages = [{
+          page: 1,
+          description: analysisResponse.data?.analyzedImage?.description || 'No description available'
+        }];
+  
+        // Save to Firebase
+        console.log('Saving to Firebase...');
+        const firestoreId = await savePDFToFirebase(pdfFile, analyzedPages);
+  
+        // Update state with test page
+        setPdfFiles(prev => prev.map(pdf => 
+          pdf.id === pdfFile.id ? { 
+            ...pdf, 
+            isProcessing: false, 
+            pages: analyzedPages,
+            firestoreId,
+            error: false
+          } : pdf
+        ));
+  
+        return firestoreId;
+  
+      } catch (analysisError) {
+        console.error('Analysis error:', analysisError);
+        throw analysisError;
+      }
+  
+    } catch (error) {
+      console.error('Processing error:', error);
+      
       setPdfFiles(prev => prev.map(pdf => 
         pdf.id === pdfFile.id ? { 
           ...pdf, 
           isProcessing: false, 
-          pages: analyzedPages,
-          firestoreId,
-          error: false
+          error: true,
+          pages: [{
+            page: 1,
+            description: `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`
+          }]
         } : pdf
       ));
   
-    } catch (error) {
-      console.error('Error processing PDF:', error);
       throw error;
     }
   };
+  
 
   const savePDFToFirebase = async (pdfFile: PDFFile, analyzedPages: AnalyzedPage[]): Promise<string> => {
     if (!user) throw new Error('User not authenticated');
