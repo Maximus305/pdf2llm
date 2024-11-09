@@ -176,7 +176,7 @@ const DocPage: React.FC = () => {
                     </li>
                     <li className="flex items-start">
                       <MessageSquare className="text-orange-500 mr-2 mt-1" size={16} />
-                      <span>Analyze complex diagrams and charts</span>
+                      <span>Analyze complex diagrams & charts</span>
                     </li>
                   </ul>
                 </div>
