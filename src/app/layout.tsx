@@ -139,7 +139,7 @@ export default function RootLayout({
   };
 
   const pathname = usePathname();
-  const pagesWithoutHeader = ['/', '/docs', '/pricing', '/sign-in', '/sign-up'];
+  const pagesWithoutHeader = ['/', '/docs', '/pricing', '/sign-in', '/sign-up', '/features', '/enterprise', '/blog', '/about', '/contact', '/legal'];
   const shouldShowHeader = !pagesWithoutHeader.includes(pathname);
 
   return (
