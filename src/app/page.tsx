@@ -289,7 +289,7 @@ const Page: React.FC = () => {
                 <span className="font-semibold text-lg">PDF2LLM.AI</span>
               </div>
               <p className="text-gray-400">
-                The most accurate PDF to Markdown conversion powered by AI.
+                The most accurate PDF to markdown conversion powered by AI.
               </p>
             </div>
             {[
