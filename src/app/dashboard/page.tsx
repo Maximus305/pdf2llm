@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import axios from 'axios';
-import { PDFDocument } from 'pdf-lib';
 import { cn } from "@/lib/utils";
 import { FiCopy, FiDownload } from 'react-icons/fi';
 import { useRouter, useSearchParams } from 'next/navigation';

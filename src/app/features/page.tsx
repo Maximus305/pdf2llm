@@ -2,10 +2,10 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, FileText, Code, FileJson, Book, Zap, Shield, Sparkles, Workflow, Gauge } from 'lucide-react';
+import { ArrowRight, Code, FileJson, Book, Zap, Shield, Sparkles, Workflow, Gauge } from 'lucide-react';
 
 const FeaturesPage = () => {
-  const [isPastHero, setIsPastHero] = React.useState(false);
+  const [, setIsPastHero] = React.useState(false);
 
   React.useEffect(() => {
     const handleScroll = () => {

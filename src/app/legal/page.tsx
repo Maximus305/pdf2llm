@@ -50,7 +50,7 @@ const LegalPage: React.FC = () => {
             <h2 className="text-2xl font-bold mb-6">Terms of Service</h2>
             <div className="bg-white rounded-xl p-8 shadow-sm">
               <p className="text-gray-600 mb-4">
-                By using PDF2LLM.AI, you agree to these terms of service. Our service is provided "as is" without any warranties, 
+                By using PDF2LLM.AI, you agree to these terms of service. Our service is provided &quot;as is&quot; without any warranties, 
                 express or implied. We reserve the right to modify, suspend, or discontinue the service at any time.
               </p>
               <p className="text-gray-600 mb-4">

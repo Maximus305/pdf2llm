@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowRight, Shield, Users, Zap, Building2, FileText, Lock } from 'lucide-react';
 
 const EnterprisePage: React.FC = () => {
-  const [isPastHero, setIsPastHero] = useState(false);
+  const [, setIsPastHero] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {

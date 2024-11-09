@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
 const BlogPage: React.FC = () => {
-  const [isPastHero, setIsPastHero] = useState(false);
+  const [, setIsPastHero] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {

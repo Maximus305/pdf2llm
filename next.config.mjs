@@ -8,15 +8,8 @@ const nextConfig = {
       },
     ];
   },
-  experimental: {
-    serverActions: true,
-  },
-  api: {
-    bodyParser: {
-      sizeLimit: '100mb',
-    },
-    responseLimit: false,
-  },
+  // Remove any experimental.serverActions if you have it
+  // Remove any api configuration if you have it
 };
 
 export default nextConfig;

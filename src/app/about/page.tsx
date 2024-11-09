@@ -1,19 +1,9 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
 
 const AboutPage: React.FC = () => {
-  const [isPastHero, setIsPastHero] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsPastHero(window.scrollY > 100);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -57,7 +47,7 @@ const AboutPage: React.FC = () => {
         <section className="max-w-7xl mx-auto px-4 text-center mb-16">
           <h1 className="text-4xl font-bold mb-6">About PDF2LLM.AI</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            We're on a mission to revolutionize how people work with PDFs using the power of artificial intelligence.
+            We&apos;re on a mission to revolutionize how people work with PDFs using the power of artificial intelligence.
           </p>
         </section>
 
@@ -66,12 +56,12 @@ const AboutPage: React.FC = () => {
           <div className="bg-white rounded-2xl p-8 shadow-sm">
             <h2 className="text-2xl font-bold mb-6">Our Story</h2>
             <p className="text-gray-600 mb-4">
-              PDF2LLM.AI was born from a simple observation: while PDFs are universal, working with them isn't always easy. 
+              PDF2LLM.AI was born from a simple observation: while PDFs are universal, working with them isn&apos;t always easy. 
               Our team of AI enthusiasts and developers came together to create a solution that makes PDF processing 
               not just easier, but smarter.
             </p>
             <p className="text-gray-600">
-              Today, we're proud to serve thousands of users worldwide, from individual developers to large enterprises, 
+              Today, we&apos;re proud to serve thousands of users worldwide, from individual developers to large enterprises, 
               helping them convert PDFs to markdown with unprecedented accuracy and efficiency.
             </p>
           </div>
@@ -84,7 +74,7 @@ const AboutPage: React.FC = () => {
             {[
               {
                 title: "Innovation",
-                description: "We continuously push the boundaries of what's possible with AI and document processing."
+                description: "We continuously push the boundaries of what&apos;s possible with AI and document processing."
               },
               {
                 title: "Reliability",
