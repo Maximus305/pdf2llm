@@ -5,18 +5,14 @@ import Link from 'next/link';
 import {  
   FileText, 
   ArrowRight, 
-  ChevronDown, 
-  ChevronRight, 
+  ChevronDown,  
   Code, 
   FileJson, 
   Book, 
   Zap,
   LucideIcon,
   Sparkles,
-  ArrowUpRight,
-  Code2,
   Braces,
-  FileCode,
   CheckCircle2
 } from 'lucide-react';
 
@@ -32,15 +28,10 @@ interface Feature {
 
 
 const HeroSection = () => {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [, setIsLoaded] = useState(false);
+  const [, setCurrentIndex] = useState(0);
   
-  const scrollToFeatures = () => {
-    const featuresSection = document.querySelector('#features');
-    if (featuresSection) {
-      featuresSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
+
 
   const examples = [
     {
@@ -287,44 +278,9 @@ const Page: React.FC = () => {
     }
   };
 
-  const features: Feature[] = [
-    {
-      icon: Code,
-      title: "Perfect Markdown",
-      description: "Convert PDFs to clean, properly formatted Markdown with accurate headers, lists, and code blocks.",
-      gradient: "bg-gradient-to-br from-blue-500 to-indigo-600",
-      delay: 0
-    },
-    {
-      icon: FileJson,
-      title: "Structure Preserved",
-      description: "Maintain document structure including tables, images, and complex formatting.",
-      gradient: "bg-gradient-to-br from-purple-500 to-pink-600",
-      delay: 100
-    },
-    {
-      icon: Book,
-      title: "Multiple Formats",
-      description: "Support for academic papers, documentation, books, and other complex documents.",
-      gradient: "bg-gradient-to-br from-orange-500 to-red-600",
-      delay: 200
-    },
-    {
-      icon: Zap,
-      title: "Lightning Fast",
-      description: "Process documents quickly with our optimized conversion pipeline.",
-      gradient: "bg-gradient-to-br from-green-500 to-emerald-600",
-      delay: 300
-    }
-  ];
+ 
 
-  const renderFloatingElements = (): JSX.Element => (
-    <div className="absolute inset-0 overflow-hidden">
-      <div className="absolute inset-0 opacity-20">
-        <div className="h-full w-full bg-[radial-gradient(circle,#888_1px,transparent_1px)] bg-[size:30px_30px]" />
-      </div>
-    </div>
-  );
+ 
 
   return (
     <div className="relative">
