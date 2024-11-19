@@ -11,7 +11,13 @@ import {
   FileJson, 
   Book, 
   Zap,
-  LucideIcon 
+  LucideIcon,
+  Sparkles,
+  ArrowUpRight,
+  Code2,
+  Braces,
+  FileCode,
+  CheckCircle2
 } from 'lucide-react';
 
 // Types
@@ -22,6 +28,233 @@ interface Feature {
   gradient: string;
   delay: number;
 }
+
+
+
+const HeroSection = () => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  
+  const scrollToFeatures = () => {
+    const featuresSection = document.querySelector('#features');
+    if (featuresSection) {
+      featuresSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const examples = [
+    {
+      input: `# Research Findings
+      
+According to our study, the
+implementation of AI in
+healthcare has shown a 45%
+improvement in early
+diagnosis rates.`,
+      output: `# Research Findings
+
+According to our study, the
+implementation of AI in
+healthcare has shown a 45%
+improvement in early
+diagnosis rates.`
+    },
+    {
+      input: `def calculate_metrics():
+    accuracy = 95.7
+    precision = 0.92
+    recall = 0.89
+    return accuracy`,
+      output: `\`\`\`python
+def calculate_metrics():
+    accuracy = 95.7
+    precision = 0.92
+    recall = 0.89
+    return accuracy
+\`\`\``
+    },
+    {
+      input: `* First insight
+* Second insight
+* Third insight
+  * Sub-point A
+  * Sub-point B`,
+      output: `- First insight
+- Second insight
+- Third insight
+  - Sub-point A
+  - Sub-point B`
+    }
+  ];
+
+  useEffect(() => {
+    setIsLoaded(true);
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % examples.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <section className="relative min-h-screen bg-gradient-to-br from-[#111318] via-[#0A0B0D] to-[#111318] flex flex-col justify-between">
+      {/* Background gradients remain the same */}
+      <div className="absolute inset-0">
+        <div className="absolute -right-1/4 top-0 w-[1000px] h-[1000px] bg-[radial-gradient(circle,#FF5733_0%,transparent_70%)] opacity-[0.15] blur-[120px]" />
+        <div className="absolute right-1/4 top-1/4 w-[800px] h-[800px] bg-[radial-gradient(circle,#FF8A4C_0%,transparent_70%)] opacity-[0.08] blur-[130px]" />
+        <div className="absolute -left-1/4 top-0 w-[1000px] h-[1000px] bg-[radial-gradient(circle,#FF3333_0%,transparent_70%)] opacity-[0.15] blur-[120px]" />
+        <div className="absolute left-1/3 top-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle,#FF4500_0%,transparent_70%)] opacity-[0.08] blur-[100px]" />
+      </div>
+      <div className="absolute inset-0 w-full h-full" 
+            style={{
+              backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.09) 1px, transparent 1px)',
+              backgroundSize: '24px 24px'
+            }}
+          />
+
+      {/* Main Content */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 w-full">
+        <div className="min-h-screen flex flex-col">
+          {/* Content Grid */}
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center py-20">
+            {/* Left Column - Content */}
+            <div className="flex flex-col items-start justify-center space-y-10 max-w-xl mx-auto w-full">
+              {/* Feature Badge */}
+              <div className="inline-flex items-center rounded-[4px] bg-[#1E293B] px-4 py-2 space-x-2">
+                <Sparkles className="w-5 h-5 text-orange-400" />
+                <span className="text-base text-orange-400 font-medium">AI-Powered Conversion</span>
+              </div>
+
+              {/* Heading */}
+              <h1 className="text-7xl font-bold text-white space-y-4">
+                <div className="relative">
+                  PDF to
+                  <div className="absolute inset-0 blur-2xl bg-white/20" />
+                </div>
+                <div className="relative">
+                  <span className="bg-gradient-to-r from-orange-400 to-red-500 text-transparent bg-clip-text">Markdown</span>
+                  <div className="absolute inset-0 blur-3xl bg-gradient-to-r from-orange-400 to-red-500 opacity-30" />
+                </div>
+                <div className="relative">
+                  Made Simple
+                  <div className="absolute inset-0 blur-2xl bg-white/20" />
+                </div>
+              </h1>
+
+              {/* Feature List */}
+              <div className="space-y-6 w-full">
+                <div className="flex items-center space-x-4 text-gray-300">
+                  <div className="relative">
+                    <Code className="w-6 h-6 relative z-10" />
+                    <div className="absolute inset-0 blur-lg bg-orange-500/20" />
+                  </div>
+                  <span className="text-lg">Perfect Markdown syntax</span>
+                </div>
+                <div className="flex items-center space-x-4 text-gray-300">
+                  <div className="relative">
+                    <Braces className="w-6 h-6 relative z-10" />
+                    <div className="absolute inset-0 blur-lg bg-red-500/20" />
+                  </div>
+                  <span className="text-lg">Maintains document structure</span>
+                </div>
+                <div className="flex items-center space-x-4 text-gray-300">
+                  <div className="relative">
+                    <CheckCircle2 className="w-6 h-6 relative z-10" />
+                    <div className="absolute inset-0 blur-lg bg-orange-500/20" />
+                  </div>
+                  <span className="text-lg">99.9% conversion accuracy</span>
+                </div>
+              </div>
+
+              {/* CTA Buttons */}
+              <div className="flex items-center space-x-6">
+                <Link 
+                  href="/sign-up"
+                  className="group relative inline-flex items-center justify-center px-8 py-4 rounded-lg bg-gradient-to-r from-orange-400 to-red-500 text-white text-lg font-medium hover:opacity-90 transition-opacity"
+                >
+                  <div className="absolute inset-0 -z-10 bg-gradient-to-r from-orange-400 to-red-500 blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
+                  Start Converting
+                  <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                </Link>
+                
+                <button className="relative inline-flex items-center justify-center px-8 py-4 rounded-lg bg-transparent text-white text-lg font-medium border border-white/20 hover:bg-white/5 transition-colors">
+                  <div className="absolute inset-0 -z-10 bg-white/5 blur-xl opacity-50" />
+                  Docs
+                </button>
+              </div>
+            </div>
+
+            {/* Right Column - Terminal Demo */}
+            <div className="relative w-full max-w-2xl mx-auto transform rotate-2 hover:rotate-0 transition-transform duration-500">
+              <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 to-red-500 opacity-20 blur rounded-xl" />
+              
+              <div className="bg-[#0D1117] rounded-xl overflow-hidden shadow-2xl relative">
+                {/* Window Header */}
+                <div className="flex items-center justify-between px-6 py-4 bg-[#161B22]">
+                  <div className="flex space-x-2">
+                    <div className="w-4 h-4 rounded-full bg-[#FF5F56]" />
+                    <div className="w-4 h-4 rounded-full bg-[#FFBD2E]" />
+                    <div className="w-4 h-4 rounded-full bg-[#27C93F]" />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-base text-gray-400">PDF → Markdown</span>
+                  </div>
+                </div>
+
+                {/* Terminal Content */}
+                <div className="p-8">
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <div className="text-base text-gray-500">Input</div>
+                      <pre className="font-mono text-base text-gray-300 bg-black/30 rounded-lg p-6">
+{`* First insight
+* Second insight
+* Third insight
+  * Sub-point A
+  * Sub-point B`}
+                      </pre>
+                    </div>
+                    
+                    <div className="flex justify-center py-2">
+                      <div className="relative">
+                        <ArrowRight className="w-6 h-6 text-orange-500 relative z-10" />
+                        <div className="absolute inset-0 blur-lg bg-orange-500/20" />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="text-base text-gray-500">Output</div>
+                      <pre className="font-mono text-base text-gray-300 bg-black/30 rounded-lg p-6">
+{`- First insight
+- Second insight
+- Third insight
+  - Sub-point A
+  - Sub-point B`}
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Learn More Button */}
+          <div className="flex justify-center mb-12">
+            <button 
+              onClick={scrollToFeatures}
+              className="group flex flex-col items-center space-y-2 text-white/80 hover:text-white transition-colors"
+            >
+              <span className="text-sm font-medium">Learn More</span>
+              <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center group-hover:border-white/40 group-hover:bg-white/5 transition-all">
+                <ChevronDown className="w-5 h-5 group-hover:translate-y-0.5 transition-transform" />
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 
 const Page: React.FC = () => {
   const [, setIsAtTop] = useState<boolean>(true);
@@ -102,8 +335,8 @@ const Page: React.FC = () => {
           flex justify-between items-center p-4 
           z-50 transition-all duration-300
           ${isPastHero 
-            ? 'bg-transparent text-black' 
-            : 'bg-transparent text-white'}
+            ? 'bg-white border-b border-gray-300   text-black' 
+            : 'bg-transparent  text-white'}
         `}
       >
         <div className="flex items-center space-x-2">
@@ -135,86 +368,122 @@ const Page: React.FC = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-gray-900 to-black" />
-        
-        {renderFloatingElements()}
+      <HeroSection/>
 
-        <div className="absolute top-20 left-10 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl" />
-        <div className="absolute top-1/3 right-10 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 left-1/4 w-60 h-60 bg-orange-500/20 rounded-full blur-3xl" />
+     {/* Enhanced Features Section */}
+<section id="features" className="py-32 bg-gradient-to-b from-white to-orange-50/30 relative overflow-hidden">
+  {/* Decorative Elements */}
+  <div className="absolute inset-0">
+    <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[radial-gradient(circle,#FFF7ED_0%,transparent_70%)] opacity-80" />
+    <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[radial-gradient(circle,#FFF4E6_0%,transparent_70%)] opacity-60" />
+    <div className="absolute inset-0 bg-[linear-gradient(110deg,#ffffff_0.8px,transparent_0.8px),linear-gradient(to_bottom,#ffffff_0.8px,transparent_0.8px)] bg-[size:24px_24px] opacity-[0.4]" />
+  </div>
 
-        <div className="text-center relative z-10 max-w-5xl mx-auto px-4">
-          <h1 className="text-white text-6xl font-bold mb-6 leading-tight animate-[reveal_0.8s_ease-out]">
-            Transform PDFs into Precise{' '}
-            <span className="bg-gradient-to-r from-orange-400 to-red-500 text-transparent bg-clip-text">
-              Markdown
-            </span>
-          </h1>
-          <p className="text-gray-300 text-xl mb-12 max-w-2xl mx-auto">
-            Experience the world&apos;s most accurate PDF to Markdown conversion, powered by ChatGPT.
-          </p>
-          <div className="flex flex-col items-center space-y-8">
-            <div className="flex items-center justify-center space-x-4">
-              <Link href="/sign-up" className="group relative inline-flex">
-                <span className="animate-border-fast absolute -inset-[3px] rounded-lg bg-gradient-to-r from-[#FF8B64] via-orange-500 to-[#D7524A] opacity-70 blur-sm transition-all duration-200 group-hover:opacity-100" />
-                <span className="animate-border-fast absolute -inset-[2px] rounded-lg bg-gradient-to-r from-[#FF8B64] via-orange-500 to-[#D7524A]" />
-                <span className="relative inline-flex items-center justify-center px-8 py-3 rounded-lg bg-gray-900 text-white font-medium transition-colors duration-200 group-hover:bg-gradient-to-r group-hover:from-orange-400 group-hover:via-orange-500 group-hover:to-red-500">
-                  Get Started
-                  <ArrowRight size={18} className="ml-2" />
-                </span>
-              </Link>
-              <Link 
-                href="/docs" 
-                className="inline-flex items-center px-6 py-3 rounded-lg bg-white/10 text-white font-medium hover:bg-white/20 transition-colors"
-              >
-                View Docs
-                <ChevronRight size={18} className="ml-1" />
-              </Link>
+  <div className="max-w-7xl mx-auto px-4 relative z-10">
+    {/* Header */}
+    <div className="text-center mb-24">
+      <div className="inline-flex items-center bg-gradient-to-r from-orange-50 to-red-50 rounded-full px-6 py-2 shadow-sm border border-orange-100 mb-6">
+        <span className="bg-gradient-to-r from-orange-400 to-red-500 text-transparent bg-clip-text font-medium">
+          Experience the Magic
+        </span>
+      </div>
+      <h2 className="text-5xl font-bold mb-6">
+        Transform PDFs with
+        <span className="bg-gradient-to-r from-orange-400 to-red-500 text-transparent bg-clip-text"> intelligent tools</span>
+      </h2>
+      <p className="text-gray-600 text-xl max-w-2xl mx-auto">
+        Seamless conversion powered by advanced AI
+      </p>
+    </div>
+
+    {/* Feature Cards */}
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-24">
+      
+      {/* Feature Card 1 */}
+      <div className="group relative p-1 rounded-2xl bg-gradient-to-r from-orange-400 to-red-500 transition-transform hover:scale-[1.02] duration-300">
+        <div className="bg-white rounded-xl p-8 h-full">
+          <div className="mb-6 relative">
+            <div className="w-14 h-14 rounded-xl bg-gradient-to-r from-orange-400 to-red-500 flex items-center justify-center transform transition-transform group-hover:rotate-12">
+              <Code className="w-7 h-7 text-white" />
             </div>
-            <button 
-              onClick={scrollToFeatures}
-              className="flex flex-col items-center text-white/80 hover:text-white transition-colors group"
-            >
-              <span className="text-sm mb-2">Learn More</span>
-              <ChevronDown className="w-6 h-6 animate-bounce" />
-            </button>
+            <div className="absolute inset-0 blur-2xl bg-orange-200 opacity-0 group-hover:opacity-30 transition-opacity" />
           </div>
+          <h3 className="text-xl font-semibold bg-gradient-to-r from-orange-400 to-red-500 text-transparent bg-clip-text mb-4">
+            Perfect Syntax
+          </h3>
+          <p className="text-gray-600">
+            Flawless conversion with perfect headers, lists, and code blocks
+          </p>
         </div>
-      </section>
+      </div>
 
-      {/* Enhanced Features Section */}
-      <section id="features" className="py-24 bg-gray-100 dark:bg-gray-800">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <span className="text-orange-600 dark:text-orange-500 font-semibold uppercase mb-4 text-sm">
-              Features
+      {/* Feature Card 2 */}
+      <div className="group relative p-1 rounded-2xl bg-gradient-to-r from-red-500 to-orange-400 transition-transform hover:scale-[1.02] duration-300">
+        <div className="bg-white rounded-xl p-8 h-full">
+          <div className="mb-6 relative">
+            <div className="w-14 h-14 rounded-xl bg-gradient-to-r from-red-500 to-orange-400 flex items-center justify-center transform transition-transform group-hover:rotate-12">
+              <Zap className="w-7 h-7 text-white" />
+            </div>
+            <div className="absolute inset-0 blur-2xl bg-red-200 opacity-0 group-hover:opacity-30 transition-opacity" />
+          </div>
+          <h3 className="text-xl font-semibold bg-gradient-to-r from-red-500 to-orange-400 text-transparent bg-clip-text mb-4">
+            Lightning Fast
+          </h3>
+          <p className="text-gray-600">
+            Process complex documents in milliseconds
+          </p>
+        </div>
+      </div>
+
+      {/* Feature Card 3 */}
+      <div className="group relative p-1 rounded-2xl bg-gradient-to-r from-orange-400 to-red-500 transition-transform hover:scale-[1.02] duration-300">
+        <div className="bg-white rounded-xl p-8 h-full">
+          <div className="mb-6 relative">
+            <div className="w-14 h-14 rounded-xl bg-gradient-to-r from-orange-400 to-red-500 flex items-center justify-center transform transition-transform group-hover:rotate-12">
+              <FileText className="w-7 h-7 text-white" />
+            </div>
+            <div className="absolute inset-0 blur-2xl bg-orange-200 opacity-0 group-hover:opacity-30 transition-opacity" />
+          </div>
+          <h3 className="text-xl font-semibold bg-gradient-to-r from-orange-400 to-red-500 text-transparent bg-clip-text mb-4">
+            Format Magic
+          </h3>
+          <p className="text-gray-600">
+            Preserve complex layouts and formatting with ease
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* Stats with Cards */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {[
+        { number: "500K+", label: "Documents Converted", gradient: "from-orange-400 to-red-500" },
+        { number: "<500ms", label: "Processing Time", gradient: "from-red-500 to-orange-400" },
+        { number: "99.9%", label: "Conversion Accuracy", gradient: "from-orange-400 to-red-500" }
+      ].map((stat, index) => (
+        <div key={index} 
+          className="group  bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl p-8 shadow-sm border border-orange-100/50 hover:border-orange-20 transition-all"
+        >
+          <div className="text-4xl font-bold mb-2">
+            <span className={`bg-gradient-to-r ${stat.gradient} text-transparent bg-clip-text`}>
+              {stat.number}
             </span>
-            <h2 className="text-4xl lg:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
-              Convert PDFs beyond expectations
-            </h2>
-            <p className="text-gray-700 dark:text-gray-300 text-lg max-w-2xl mx-auto">
-              Our AI-powered conversion maintains perfect fidelity while transforming complex PDFs into clean, structured Markdown.
-            </p>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-10">
-            {features.map((feature, index) => (
-              <div key={index} className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-lg flex flex-col items-center justify-center h-64 w-64">
-                <div className="flex items-center justify-center mb-4">
-                  <feature.icon className="text-gray-900 dark:text-white" size={32} />
-                </div>
-                <h3 className="text-xl font-semibold mb-2 text-center text-gray-900 dark:text-white">{feature.title}</h3>
-                <p className="text-gray-600 dark:text-gray-300 text-center">{feature.description}</p>
-              </div>
-            ))}
-          </div>
+          <div className="text-white">{stat.label}</div>
+          <div className="h-1 w-0 group-hover:w-full bg-gradient-to-r from-orange-400 to-red-500 mt-4 transition-all duration-300" />
         </div>
-      </section>
+      ))}
+    </div>
+  </div>
+</section>
+
 
       {/* How it Works Section */}
       <section className="bg-white py-24">
+        
         <div className="max-w-7xl mx-auto px-4">
+
+       
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">How It Works</h2>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto">
@@ -253,7 +522,7 @@ const Page: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-gray-900 py-24">
+      <section className="py-24">
         <div className="max-w-7xl mx-auto px-4">
           <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl p-12 text-center">
             <h2 className="text-4xl font-bold text-white mb-6">
