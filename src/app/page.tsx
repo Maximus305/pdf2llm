@@ -6,9 +6,7 @@ import {
   FileText, 
   ArrowRight, 
   ChevronDown,  
-  Code, 
-  FileJson, 
-  Book, 
+  Code,   
   Zap,
   LucideIcon,
   Sparkles,
@@ -17,13 +15,7 @@ import {
 } from 'lucide-react';
 
 // Types
-interface Feature {
-  icon: LucideIcon;
-  title: string;
-  description: string;
-  gradient: string;
-  delay: number;
-}
+
 
 
 
@@ -264,19 +256,6 @@ const Page: React.FC = () => {
     };
   }, []);
 
-  const scrollToFeatures = () => {
-    const featuresSection = document.querySelector('#features');
-    if (featuresSection) {
-      const offset = -20;
-      const elementPosition = featuresSection.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
-      
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-    }
-  };
 
  
 
