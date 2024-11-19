@@ -8,7 +8,6 @@ import {
   ChevronDown,  
   Code,   
   Zap,
-  LucideIcon,
   Sparkles,
   Braces,
   CheckCircle2
