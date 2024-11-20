@@ -22,7 +22,12 @@ const HeroSection = () => {
   const [, setIsLoaded] = useState(false);
   const [, setCurrentIndex] = useState(0);
   
-
+const scrollToFeatures = () => {
+    const featuresSection = document.querySelector('#features');
+    if (featuresSection) {
+      featuresSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   const examples = [
     {
