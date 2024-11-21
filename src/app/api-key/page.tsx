@@ -43,7 +43,11 @@ const UnderConstructionPage = () => {
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">Under Construction</h1>
+<<<<<<< HEAD
           <p className="text-lg text-gray-600">We&apos;re working hard to bring you this page. Please check back later.</p>
+=======
+          <p className="text-lg text-gray-600">We&apos;re working hard to bring you this page. Please check back later!</p>
+>>>>>>> 0c965b3 (Crazy update)
         </div>
       </div>
     </div>

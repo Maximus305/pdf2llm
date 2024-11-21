@@ -13,16 +13,16 @@ import {
   CheckCircle2
 } from 'lucide-react';
 
-// Types
+
 
 
 
 
 const HeroSection = () => {
-  const [, setIsLoaded] = useState(false);
-  const [, setCurrentIndex] = useState(0);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
   
-const scrollToFeatures = () => {
+  const scrollToFeatures = () => {
     const featuresSection = document.querySelector('#features');
     if (featuresSection) {
       featuresSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -83,139 +83,143 @@ def calculate_metrics():
   }, []);
 
   return (
-    <section className="relative min-h-screen bg-gradient-to-br from-[#111318] via-[#0A0B0D] to-[#111318] flex flex-col justify-between">
-      {/* Background gradients remain the same */}
-      <div className="absolute inset-0">
-        <div className="absolute -right-1/4 top-0 w-[1000px] h-[1000px] bg-[radial-gradient(circle,#FF5733_0%,transparent_70%)] opacity-[0.15] blur-[120px]" />
-        <div className="absolute right-1/4 top-1/4 w-[800px] h-[800px] bg-[radial-gradient(circle,#FF8A4C_0%,transparent_70%)] opacity-[0.08] blur-[130px]" />
-        <div className="absolute -left-1/4 top-0 w-[1000px] h-[1000px] bg-[radial-gradient(circle,#FF3333_0%,transparent_70%)] opacity-[0.15] blur-[120px]" />
-        <div className="absolute left-1/3 top-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle,#FF4500_0%,transparent_70%)] opacity-[0.08] blur-[100px]" />
+    <section className="relative min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex flex-col justify-between overflow-x-hidden">
+      {/* Background gradients - contained within viewport */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute right-[-25%] top-0 w-[1000px] h-[1000px] bg-[radial-gradient(circle,#FF5733_0%,transparent_70%)] opacity-[0.08] blur-[120px]" />
+        <div className="absolute right-[25%] top-[25%] w-[800px] h-[800px] bg-[radial-gradient(circle,#FF8A4C_0%,transparent_70%)] opacity-[0.05] blur-[130px]" />
+        <div className="absolute left-[-25%] top-0 w-[1000px] h-[1000px] bg-[radial-gradient(circle,#FF3333_0%,transparent_70%)] opacity-[0.08] blur-[120px]" />
+        <div className="absolute left-[33%] top-[50%] w-[600px] h-[600px] bg-[radial-gradient(circle,#FF4500_0%,transparent_70%)] opacity-[0.05] blur-[100px]" />
       </div>
-      <div className="absolute inset-0 w-full h-full" 
-            style={{
-              backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.09) 1px, transparent 1px)',
-              backgroundSize: '24px 24px'
-            }}
-          />
+
+      {/* Pattern Background */}
+      <div className="absolute inset-0">
+        <svg className="absolute inset-0 w-full h-full opacity-[0.15]" width="100%" height="100%">
+          <defs>
+            <pattern id="hero-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+              <path d="M0 0 L50 0 L50 50 L0 50 Z" fill="none" stroke="rgba(0,0,0,0.3)" strokeWidth="1" />
+              <path d="M50 0 L100 0 L100 50 L50 50 Z" fill="none" stroke="rgba(0,0,0,0.3)" strokeWidth="0.5" />
+              <path d="M0 50 L50 50 L50 100 L0 100 Z" fill="none" stroke="rgba(0,0,0,0.3)" strokeWidth="0.5" />
+              <path d="M50 50 L100 50 L100 100 L50 100 Z" fill="none" stroke="rgba(0,0,0,0.3)" strokeWidth="1" />
+              <circle cx="50" cy="50" r="3" fill="rgba(255,87,51,0.15)" />
+              <circle cx="0" cy="0" r="2" fill="rgba(255,87,51,0.1)" />
+              <circle cx="100" cy="100" r="2" fill="rgba(255,87,51,0.1)" />
+            </pattern>
+          </defs>
+          <rect x="0" y="0" width="100%" height="100%" fill="url(#hero-pattern)" />
+        </svg>
+      </div>
 
       {/* Main Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 w-full">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="min-h-screen flex flex-col">
           {/* Content Grid */}
-          <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center py-20">
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20 items-center py-12 lg:py-20">
             {/* Left Column - Content */}
-            <div className="flex flex-col items-start justify-center space-y-10 max-w-xl mx-auto w-full">
+            <div className="flex flex-col items-center lg:items-start justify-center space-y-6 lg:space-y-10 max-w-xl mx-auto w-full">
               {/* Feature Badge */}
-              <div className="inline-flex items-center rounded-[4px] bg-[#1E293B] px-4 py-2 space-x-2">
-                <Sparkles className="w-5 h-5 text-orange-400" />
-                <span className="text-base text-orange-400 font-medium">AI-Powered Conversion</span>
+              <div className="inline-flex items-center rounded-[4px] bg-orange-50 px-3 sm:px-4 py-2 space-x-2">
+                <Sparkles className="w-4 sm:w-5 h-4 sm:h-5 text-orange-500" />
+                <span className="text-sm sm:text-base text-orange-600 font-medium">AI-Powered Conversion</span>
               </div>
 
               {/* Heading */}
-              <h1 className="text-7xl font-bold text-white space-y-4">
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-gray-900 space-y-2 lg:space-y-4 text-center lg:text-left">
                 <div className="relative">
                   PDF to
-                  <div className="absolute inset-0 blur-2xl bg-white/20" />
+                  <div className="absolute inset-0 blur-2xl bg-orange-100/40" />
                 </div>
                 <div className="relative">
-                  <span className="bg-gradient-to-r from-orange-400 to-red-500 text-transparent bg-clip-text">Markdown</span>
-                  <div className="absolute inset-0 blur-3xl bg-gradient-to-r from-orange-400 to-red-500 opacity-30" />
+                  <span className="bg-gradient-to-r from-orange-500 to-red-600 text-transparent bg-clip-text">Markdown</span>
+                  <div className="absolute inset-0 blur-3xl bg-gradient-to-r from-orange-400 to-red-500 opacity-20" />
                 </div>
                 <div className="relative">
                   Made Simple
-                  <div className="absolute inset-0 blur-2xl bg-white/20" />
+                  <div className="absolute inset-0 blur-2xl bg-orange-100/40" />
                 </div>
               </h1>
 
               {/* Feature List */}
-              <div className="space-y-6 w-full">
-                <div className="flex items-center space-x-4 text-gray-300">
+              <div className="space-y-4 lg:space-y-6 w-full">
+                <div className="flex items-center space-x-4 text-gray-600">
                   <div className="relative">
-                    <Code className="w-6 h-6 relative z-10" />
-                    <div className="absolute inset-0 blur-lg bg-orange-500/20" />
+                    <Code className="w-5 sm:w-6 h-5 sm:h-6 relative z-10" />
+                    <div className="absolute inset-0 blur-lg bg-orange-500/10" />
                   </div>
-                  <span className="text-lg">Perfect Markdown syntax</span>
+                  <span className="text-base lg:text-lg">Perfect Markdown syntax</span>
                 </div>
-                <div className="flex items-center space-x-4 text-gray-300">
+                <div className="flex items-center space-x-4 text-gray-600">
                   <div className="relative">
-                    <Braces className="w-6 h-6 relative z-10" />
-                    <div className="absolute inset-0 blur-lg bg-red-500/20" />
+                    <Braces className="w-5 sm:w-6 h-5 sm:h-6 relative z-10" />
+                    <div className="absolute inset-0 blur-lg bg-red-500/10" />
                   </div>
-                  <span className="text-lg">Maintains document structure</span>
+                  <span className="text-base lg:text-lg">Maintains document structure</span>
                 </div>
-                <div className="flex items-center space-x-4 text-gray-300">
+                <div className="flex items-center space-x-4 text-gray-600">
                   <div className="relative">
-                    <CheckCircle2 className="w-6 h-6 relative z-10" />
-                    <div className="absolute inset-0 blur-lg bg-orange-500/20" />
+                    <CheckCircle2 className="w-5 sm:w-6 h-5 sm:h-6 relative z-10" />
+                    <div className="absolute inset-0 blur-lg bg-orange-500/10" />
                   </div>
-                  <span className="text-lg">99.9% conversion accuracy</span>
+                  <span className="text-base lg:text-lg">99.9% conversion accuracy</span>
                 </div>
               </div>
 
               {/* CTA Buttons */}
-              <div className="flex items-center space-x-6">
+              <div className="flex flex-col sm:flex-row items-center gap-4 sm:space-x-6 w-full sm:w-auto">
                 <Link 
                   href="/sign-up"
-                  className="group relative inline-flex items-center justify-center px-8 py-4 rounded-lg bg-gradient-to-r from-orange-400 to-red-500 text-white text-lg font-medium hover:opacity-90 transition-opacity"
+                  className="w-full sm:w-auto group relative inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 rounded-lg bg-gradient-to-r from-orange-500 to-red-600 text-white text-base sm:text-lg font-medium hover:opacity-90 transition-opacity"
                 >
-                  <div className="absolute inset-0 -z-10 bg-gradient-to-r from-orange-400 to-red-500 blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
+                  <div className="absolute inset-0 -z-10 bg-gradient-to-r from-orange-400 to-red-500 blur-xl opacity-30 group-hover:opacity-50 transition-opacity" />
                   Start Converting
-                  <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="ml-2 sm:ml-3 w-5 sm:w-6 h-5 sm:h-6 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 
-                <button className="relative inline-flex items-center justify-center px-8 py-4 rounded-lg bg-transparent text-white text-lg font-medium border border-white/20 hover:bg-white/5 transition-colors">
-                  <div className="absolute inset-0 -z-10 bg-white/5 blur-xl opacity-50" />
+                <button className="w-full sm:w-auto relative inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 rounded-lg bg-transparent text-gray-800 text-base sm:text-lg font-medium border border-gray-300 hover:bg-gray-50 transition-colors">
+                  <div className="absolute inset-0 -z-10 bg-gray-100/50 blur-xl opacity-50" />
                   Docs
                 </button>
               </div>
             </div>
 
             {/* Right Column - Terminal Demo */}
-            <div className="relative w-full max-w-2xl mx-auto transform rotate-2 hover:rotate-0 transition-transform duration-500">
+            <div className="relative w-full max-w-xl lg:max-w-2xl mx-auto transform rotate-0 lg:rotate-2 hover:rotate-0 transition-transform duration-500 mt-8 lg:mt-0">
               <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 to-red-500 opacity-20 blur rounded-xl" />
               
               <div className="bg-[#0D1117] rounded-xl overflow-hidden shadow-2xl relative">
                 {/* Window Header */}
-                <div className="flex items-center justify-between px-6 py-4 bg-[#161B22]">
+                <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 bg-[#161B22] border-b border-gray-800">
                   <div className="flex space-x-2">
-                    <div className="w-4 h-4 rounded-full bg-[#FF5F56]" />
-                    <div className="w-4 h-4 rounded-full bg-[#FFBD2E]" />
-                    <div className="w-4 h-4 rounded-full bg-[#27C93F]" />
+                    <div className="w-3 sm:w-4 h-3 sm:h-4 rounded-full bg-[#FF5F56]" />
+                    <div className="w-3 sm:w-4 h-3 sm:h-4 rounded-full bg-[#FFBD2E]" />
+                    <div className="w-3 sm:w-4 h-3 sm:h-4 rounded-full bg-[#27C93F]" />
                   </div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-base text-gray-400">PDF → Markdown</span>
+                    <span className="text-sm sm:text-base text-gray-400">PDF → Markdown</span>
                   </div>
                 </div>
 
                 {/* Terminal Content */}
-                <div className="p-8">
-                  <div className="space-y-6">
+                <div className="p-4 sm:p-6 lg:p-8">
+                  <div className="space-y-4 sm:space-y-6">
                     <div className="space-y-2">
-                      <div className="text-base text-gray-500">Input</div>
-                      <pre className="font-mono text-base text-gray-300 bg-black/30 rounded-lg p-6">
-{`* First insight
-* Second insight
-* Third insight
-  * Sub-point A
-  * Sub-point B`}
+                      <div className="text-sm sm:text-base text-gray-400">Input</div>
+                      <pre className="font-mono text-sm sm:text-base text-gray-300 bg-[#1C2128] rounded-lg p-4 sm:p-6 overflow-x-auto">
+                        {examples[currentIndex].input}
                       </pre>
                     </div>
                     
                     <div className="flex justify-center py-2">
                       <div className="relative">
-                        <ArrowRight className="w-6 h-6 text-orange-500 relative z-10" />
+                        <ArrowRight className="w-5 sm:w-6 h-5 sm:h-6 text-orange-500 relative z-10" />
                         <div className="absolute inset-0 blur-lg bg-orange-500/20" />
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <div className="text-base text-gray-500">Output</div>
-                      <pre className="font-mono text-base text-gray-300 bg-black/30 rounded-lg p-6">
-{`- First insight
-- Second insight
-- Third insight
-  - Sub-point A
-  - Sub-point B`}
+                      <div className="text-sm sm:text-base text-gray-400">Output</div>
+                      <pre className="font-mono text-sm sm:text-base text-gray-300 bg-[#1C2128] rounded-lg p-4 sm:p-6 overflow-x-auto">
+                        {examples[currentIndex].output}
                       </pre>
                     </div>
                   </div>
@@ -225,14 +229,14 @@ def calculate_metrics():
           </div>
 
           {/* Learn More Button */}
-          <div className="flex justify-center mb-12">
+          <div className="flex justify-center mb-8 lg:mb-12">
             <button 
               onClick={scrollToFeatures}
-              className="group flex flex-col items-center space-y-2 text-white/80 hover:text-white transition-colors"
+              className="group flex flex-col items-center space-y-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
-              <span className="text-sm font-medium">Learn More</span>
-              <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center group-hover:border-white/40 group-hover:bg-white/5 transition-all">
-                <ChevronDown className="w-5 h-5 group-hover:translate-y-0.5 transition-transform" />
+              <span className="text-xs sm:text-sm font-medium">Learn More</span>
+              <div className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center group-hover:border-gray-400 group-hover:bg-gray-50 transition-all">
+                <ChevronDown className="w-4 sm:w-5 h-4 sm:h-5 group-hover:translate-y-0.5 transition-transform" />
               </div>
             </button>
           </div>
@@ -243,9 +247,10 @@ def calculate_metrics():
 };
 
 
+
 const Page: React.FC = () => {
   const [, setIsAtTop] = useState<boolean>(true);
-  const [isPastHero, setIsPastHero] = useState<boolean>(false);
+  const [, setIsPastHero] = useState<boolean>(false);
 
   useEffect(() => {
     const handleScroll = (): void => {
@@ -269,17 +274,10 @@ const Page: React.FC = () => {
     <div className="relative">
       {/* Header */}
       <header 
-        className={`
-          fixed top-0 left-0 right-0 
-          flex justify-between items-center p-4 
-          z-50 transition-all duration-300
-          ${isPastHero 
-            ? 'bg-white border-b border-gray-300   text-black' 
-            : 'bg-transparent  text-white'}
-        `}
+        className="fixed top-0 left-0 right-0 flex justify-between items-center p-3 z-50 transition-all duration-300 bg-white border-b border-gray-300 text-black"
       >
         <div className="flex items-center space-x-2">
-          <img src="/images/logo.svg" className="w-6 h-6" alt="Logo" />
+          <img src="/images/logo.svg" className="w-5 h-5" alt="Logo" />
           <span className="font-semibold text-base">PDF2LLM.AI</span>
         </div>
         <nav className="flex items-center space-x-6">
@@ -294,12 +292,7 @@ const Page: React.FC = () => {
           </Link>
           <Link 
             href="/sign-up" 
-            className={`
-              px-4 py-2 rounded-lg text-sm font-medium transition-all
-              ${isPastHero 
-                ? 'bg-gray-900 text-white hover:bg-gray-800'
-                : 'bg-white text-gray-900 hover:bg-gray-100'}
-            `}
+            className="px-4 py-2 rounded-lg text-sm font-medium transition-all bg-gray-900 text-white hover:bg-gray-800"
           >
             Get Started
           </Link>

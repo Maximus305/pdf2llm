@@ -455,12 +455,12 @@ const PDFAnalyzerContent = () => {
               {filteredPdfFiles.length > 0 ? filteredPdfFiles.map((pdf) => (
                 <div 
                   key={pdf.id}
-                  className={`flex flex-col items-center cursor-pointer relative p-2 rounded-lg aspect-square bg-white
+                  className={`flex flex-col items-center cursor-pointer relative p-1 rounded-lg aspect-square bg-white
                     ${pdf.id === selectedFileId ? 'bg-gray-100' : ''}`}
                   onClick={() => updateSelectedFile(pdf.id)}
                 >
                   <div className="flex items-center justify-center flex-1">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-gray-400">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-gray-400">
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                       <polyline points="14 2 14 8 20 8" />
                       <path d="M12 18v-6" />
@@ -468,21 +468,21 @@ const PDFAnalyzerContent = () => {
                     </svg>
                     {pdf.isProcessing && (
                       <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
                       </div>
                     )}
                   </div>
-                  <span className="text-sm text-center truncate w-full mt-1">{pdf.name}</span>
+                  <span className="text-xs text-center truncate w-full mt-1">{pdf.name}</span>
                   <Button 
                     size="icon" 
                     variant="ghost" 
-                    className="absolute top-2 right-2 text-gray-600"
+                    className="absolute top-1 right-1 text-gray-600"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDeletePDF(pdf.id);
                     }}
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-3 w-3" />
                   </Button>
                 </div>
               )) : (
