@@ -84,11 +84,7 @@ const BlogPage: React.FC = () => {
               PDF2LLM Blog
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-<<<<<<< HEAD
-              Insights, updates and guides about PDF processing and document conversion.
-=======
               Insights, updates and guides about PDF processing and document conversion
->>>>>>> 0c965b3 (Crazy update)
             </p>
           </div>
         </div>

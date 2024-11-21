@@ -19,7 +19,7 @@ import {
 
 
 const HeroSection = () => {
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [, setIsLoaded] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   
   const scrollToFeatures = () => {
