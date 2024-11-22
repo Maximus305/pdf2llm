@@ -274,31 +274,31 @@ const Page: React.FC = () => {
     <div className="relative">
       {/* Header */}
       <header 
-        className="fixed top-0 left-0 right-0 flex justify-between items-center p-3 z-50 transition-all duration-300 bg-white border-b border-gray-300 text-black"
-      >
-        <div className="flex items-center space-x-2">
-          <img src="/images/logo.svg" className="w-5 h-5" alt="Logo" />
-          <span className="font-semibold text-base">PDF2LLM.AI</span>
+      className="fixed top-0 left-0 right-0 flex justify-center items-center py-4 z-50 transition-all duration-300 bg-white border border-gray-200 text-gray-700"
+    >
+      <div className="w-full max-w-7xl px-8 flex justify-between items-center">
+        <div className="flex items-center">
+          <img src="/images/logo.svg" className="w-6 h-6" alt="Logo" />
         </div>
-        <nav className="flex items-center space-x-6">
-          <Link href="/pricing" className="text-sm font-medium hover:text-gray-300 transition-colors">
+        <nav className="flex items-center space-x-8">
+          <Link href="/pricing" className="text-sm font-medium hover:text-gray-500 transition-colors">
             Pricing
           </Link>
-          <Link href="/docs" className="text-sm font-medium hover:text-gray-300 transition-colors">
+          <Link href="/docs" className="text-sm font-medium hover:text-gray-500 transition-colors">
             Documentation
           </Link>
-          <Link href="/sign-in" className="text-sm font-medium hover:text-gray-300 transition-colors">
+          <Link href="/sign-in" className="text-sm font-medium hover:text-gray-500 transition-colors">
             Sign In
           </Link>
           <Link 
             href="/sign-up" 
-            className="px-4 py-2 rounded-lg text-sm font-medium transition-all bg-gray-900 text-white hover:bg-gray-800"
+            className="px-6 py-2 rounded-lg text-sm font-medium transition-all bg-black text-gray-100 hover:bg-gray-600"
           >
             Get Started
           </Link>
         </nav>
-      </header>
-
+      </div>
+    </header>
       {/* Hero Section */}
       <HeroSection/>
 
@@ -411,68 +411,144 @@ const Page: React.FC = () => {
 
 
       {/* How it Works Section */}
-      <section className="bg-white py-24">
-        
-        <div className="max-w-7xl mx-auto px-4">
+      <section className="py-24">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="text-center mb-16">
+          <h2 className="text-5xl font-bold text-orange-500 mb-4">How It Works</h2>
+          <p className="text-gray-400 text-lg">
+            Three simple steps to convert your PDFs into perfect Markdown
+          </p>
+        </div>
 
-       
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">How It Works</h2>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-              Three simple steps to convert your PDFs into perfect Markdown
-            </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Step 1 */}
+          <div className="bg-gray-800 rounded-xl p-6 hover:bg-gray-750 transition-all">
+            <div className="bg-gray-900 rounded-lg p-4 mb-6">
+              <div className="flex gap-2 mb-3">
+                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+              </div>
+              <div className="font-mono text-sm">
+                <span className="text-green-400">➜</span>
+                <span className="text-blue-400 ml-2">upload</span>
+                <span className="text-gray-300 ml-2">document.pdf</span>
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gray-900 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <FileText className="text-white" size={32} />
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">1. Upload PDF</h3>
+              <p className="text-gray-400">
+                Upload your PDF through our interface or API
+              </p>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {[
-              {
-                icon: FileText,
-                title: "1. Upload PDF",
-                description: "Upload your PDF through our interface or API"
-              },
-              {
-                icon: Zap,
-                title: "2. AI Processing",
-                description: "Our AI analyzes and converts your document"
-              },
-              {
-                icon: Code,
-                title: "3. Get Markdown",
-                description: "Download perfectly formatted Markdown"
-              }
-            ].map((step, index) => (
-              <div key={index} className="text-center">
-                <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-6">
-                  <step.icon className="text-white" size={32} />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-                <p className="text-gray-600">{step.description}</p>
+          {/* Step 2 */}
+          <div className="bg-gray-800 rounded-xl p-6 hover:bg-gray-750 transition-all">
+            <div className="bg-gray-900 rounded-lg p-4 mb-6">
+              <div className="flex gap-2 mb-3">
+                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500"></div>
               </div>
-            ))}
+              <div className="font-mono text-sm">
+                <span className="text-green-400">➜</span>
+                <span className="text-blue-400 ml-2">convert</span>
+                <span className="text-gray-300 ml-2">⚡️ processing...</span>
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gray-900 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <Zap className="text-white" size={32} />
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">2. AI Processing</h3>
+              <p className="text-gray-400">
+                Our AI analyzes and converts your document
+              </p>
+            </div>
+          </div>
+
+          {/* Step 3 */}
+          <div className="bg-gray-800 rounded-xl p-6 hover:bg-gray-750 transition-all">
+            <div className="bg-gray-900 rounded-lg p-4 mb-6">
+              <div className="flex gap-2 mb-3">
+                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+              </div>
+              <div className="font-mono text-sm">
+                <span className="text-green-400">➜</span>
+                <span className="text-blue-400 ml-2">output</span>
+                <span className="text-gray-300 ml-2">markdown.md</span>
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gray-900 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <Code className="text-white" size={32} />
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">3. Get Markdown</h3>
+              <p className="text-gray-400">
+                Download perfectly formatted Markdown
+              </p>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
       {/* CTA Section */}
-      <section className="py-24">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl p-12 text-center">
-            <h2 className="text-4xl font-bold text-white mb-6">
-              Ready to transform your PDFs?
+      <section className="py-24 bg-white">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="relative rounded-3xl p-12 border-2 border-orange-500">
+          {/* Main content */}
+          <div className="text-center">
+            <h2 className="text-5xl font-bold text-gray-900 mb-6 tracking-tight">
+              Transform Your PDFs with Ease
             </h2>
-            <p className="text-white/90 text-lg mb-8 max-w-2xl mx-auto">
-              Join thousands of developers who trust our service for their PDF to Markdown conversion needs.
+            <p className="text-gray-600 text-xl mb-12 max-w-2xl mx-auto leading-relaxed">
+              Join thousands of developers who trust our lightning-fast, accurate PDF to Markdown conversion service.
             </p>
-            <Link 
-              href="/sign-up" 
-              className="inline-flex items-center px-8 py-3 rounded-lg bg-white text-gray-900 font-medium hover:bg-gray-100 transition-colors"
-            >
-              Get Started for Free
-              <ArrowRight size={18} className="ml-2" />
-            </Link>
+            
+            {/* CTA buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link 
+                href="/sign-up" 
+                className="group inline-flex items-center px-8 py-4 rounded-xl bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-all duration-200"
+              >
+                Get Started Free
+                <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              
+              <Link 
+                href="/demo" 
+                className="inline-flex items-center px-8 py-4 rounded-xl border-2 border-orange-500 text-orange-500 font-semibold hover:bg-orange-50 transition-all duration-200"
+              >
+                Try Demo
+              </Link>
+            </div>
+          </div>
+          
+          {/* Stats */}
+          <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6 pt-12 border-t border-gray-100">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-gray-900">100k+</div>
+              <div className="text-gray-600">PDFs Processed</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-gray-900">99.9%</div>
+              <div className="text-gray-600">Accuracy Rate</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-gray-900">5★</div>
+              <div className="text-gray-600">Customer Rating</div>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12 border-t border-gray-800">

@@ -6,6 +6,11 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   background-color: white; /* Make the background color white */
 }
+.bg-dot-pattern {
+ 
+  background-image: radial-gradient(circle, #000000 1px, transparent 1px);
+  background-size: 24px 24px,
+}
 
 @layer utilities {
   .text-balance {

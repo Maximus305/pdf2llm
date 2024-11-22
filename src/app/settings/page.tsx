@@ -1,4 +1,3 @@
-// app/settings/page.tsx
 "use client";
 
 import React from 'react';
@@ -38,8 +37,10 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen relative bg-gray-50">
+      {/* Background Dot Pattern */}
+      <div className="absolute inset-0 w-full h-full bg-dot-pattern z-0"></div>
+      <div className="max-w-7xl mx-auto z-10 relative"> {/* Ensure content is above the background */}
         <div className="flex">
           <Sidebar />
           <div className="flex-1 p-8">
