@@ -1,8 +1,10 @@
 "use client"
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import { 
   FileText, 
   MessageSquare, 
@@ -20,6 +22,16 @@ import {
 } from 'lucide-react';
 
 const DocPage: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsAuthenticated(!!user);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
@@ -44,21 +56,30 @@ const DocPage: React.FC = () => {
           <Link href="/" className="text-sm font-medium hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
             Home
           </Link>
+          {isAuthenticated && (
+            <Link href="/dashboard" className="text-sm font-medium hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+              Dashboard
+            </Link>
+          )}
           <Link href="/pricing" className="text-sm font-medium hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
             Pricing
           </Link>
           <Link href="/docs" className="text-sm font-medium text-orange-500">
             Documentation
           </Link>
-          <Link href="/sign-in" className="text-sm font-medium hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
-            Sign In
-          </Link>
-          <Link 
-            href="/sign-up" 
-            className="px-4 py-2 rounded-lg text-sm font-medium transition-all bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
-          >
-            Get Started
-          </Link>
+          {!isAuthenticated ? (
+            <>
+              <Link href="/sign-in" className="text-sm font-medium hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                Sign In
+              </Link>
+              <Link 
+                href="/sign-up" 
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-all bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+              >
+                Get Started
+              </Link>
+            </>
+          ) : null}
         </nav>
       </header>
 

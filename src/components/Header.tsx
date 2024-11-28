@@ -42,7 +42,7 @@ const Header = () => {
 
   return (
     <header className="h-14 bg-white border-b border-gray-200 fixed top-0 w-full z-10">
-      <div className="h-full w-full px-4 flex items-center justify-between max-w-[1920px] mx-auto">
+      <div className="h-full w-full px-8 flex items-center justify-between">
         {/* Left section */}
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2 text-gray-800">

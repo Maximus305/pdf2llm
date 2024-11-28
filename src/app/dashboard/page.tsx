@@ -71,7 +71,6 @@ const PDFAnalyzerContent = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const gradientButtonStyle = "bg-gradient-to-r from-[#D7524A] to-[#E2673F] text-white hover:opacity-90";
-
   // Process queue effect
   useEffect(() => {
     const processQueue = async () => {
@@ -413,8 +412,7 @@ const PDFAnalyzerContent = () => {
   }
 
   return (
-    <>
-      <div className={cn(
+    <>      <div className={cn(
         "flex min-h-screen max-h-screen overflow-hidden transition-all duration-300 ease-in-out bg-white",
         isChatOpen ? "mr-[500px]" : ""
       )}>
